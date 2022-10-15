@@ -12,3 +12,10 @@ In which the cost (weight) is the number of repeated element.</br>For example wi
 <p>
  I based my solution on the Pseudocode found in https://python.plainenglish.io/uniform-cost-search-ucs-algorithm-in-python-ec3ee03fca9f.
  </P>
+ <p>
+  Numbers of visited nodes for different N values:<br/>
+   - N = 5 -> 122 nodes visited<br/>
+   - N = 10 -> 874 nodes visited<br/>
+   - N = 20 -> 23.416 nodes visited<br/>
+   With bigger N is not feasible the execution.
+  </p>
