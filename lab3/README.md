@@ -28,6 +28,9 @@ For the second task, I have implemented an hard coded strategy, that use 3 param
   </ul>
   
 </p>
+<p>
+ I based my solution on the Code developed in lab2 https://github.com/EnricoMagliano/computational-intelligence/edit/main/lab2 for the EA, and on the prof. Squilero code https://github.com/squillero/computational-intelligence/blob/master/2022-23/lab3_nim.ipynb for the Nim game structure.
+</p>
 
 <h3>Task 3</h3>
 <p>
@@ -45,8 +48,6 @@ During the train phase the random_factor is decrease to encourage exploitation b
 Depsite I think this is not a bad idea, the results are really bad this agent is little better than pure random strategy, but worse than all the others.</br>
 I would really appreciate if someone could improve it.
 </p>
-<p>
- I based my solution on the Code developed in lab2 https://github.com/EnricoMagliano/computational-intelligence/edit/main/lab2 for the EA, and on the prof. Squilero code https://github.com/squillero/computational-intelligence/blob/master/2022-23/lab3_nim.ipynb for the Nim game structure.
-</p>
+
 
 
