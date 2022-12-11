@@ -45,7 +45,7 @@ During the train phase the random_factor is decrease to encourage exploitation b
 </p>
 <h4>Results</h4>
 <p> 
-Depsite I think this is not a bad idea, the results are really bad this agent is little better than pure random strategy, but worse than all the others.</br>
+Depsite I think this is not a bad idea, the results are really bad, this agent is little better than pure random strategy, but worse than all the others.</br>
 I would really appreciate if someone could improve it.
 </p>
 
