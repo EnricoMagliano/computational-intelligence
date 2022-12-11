@@ -43,9 +43,9 @@ In particolar my agent during the training phase learning from the winning match
 Obviously use another dictionary, self.current_move, to keed track of the ply of the current match attending for the match's outcome.</br>
 During the train phase the random_factor is decrease to encourage exploitation by moving forward with matches, and also the opponent is switched starting from the silliest one (pure random) to the optimal strategy.</br>
 </p>
-<h6>Results</h6>
+<h4>Results</h4>
 <p> 
-Depsite I think this is not a bad idea, the results are really bad this agent is little better than pure random strategy, but worse than all the others.</br>
+Depsite I think this is not a bad idea, the results are really bad, this agent is little better than pure random strategy, but worse than all the others.</br>
 I would really appreciate if someone could improve it.
 </p>
 
