@@ -15,84 +15,155 @@ class myMinMax(quarto.Player):
     def choose_piece(self) -> int:
         self.check_opportunity() 
         print(self.opportunity)
+
         negative_char = []
         positive_char = []
         for e1 in self.opportunity[1]:  #take opportunity level 1 (worse for me)
             if e1[1] not in negative_char:
-                negative_char.append(e1[1]) 
+                negative_char.append(e1[1])
+        for e3 in self.opportunity[3]: #take opportunity level 3
+            if e3[1] not  in negative_char:
+                negative_char.append(e3[1])         
         for e2 in self.opportunity[2]:  #take opportunity level 2 (best for me)
             if e2[1] not in positive_char:
                 positive_char.append(e2[1])  
         print("pos ", positive_char)
         print("neg ", negative_char)
-        inter_char = [x for x in positive_char if x not in negative_char] #take all element from positive that are not in negative
-        if len(inter_char) > 0:
-            print("find char ", inter_char[0])
-            piece_index = self.find_piece(inter_char)
-            if piece_index != -1:
+
+        positive_char = [x for x in positive_char if x not in negative_char] #take only positive char that are not in negative char
+        
+        piece_index = self.find_piece(positive_char, negative_char) 
+        if piece_index != -1:
                 print("selected piece ", piece_index)
                 return piece_index  
-        else:   #check oportunity level 3 and 4
-            for e3 in self.opportunity[3]:
-                negative_char.append(e3[1])
-            for e4 in self.opportunity[4]:
+        else:   
+            for e4 in self.opportunity[4]: #add level 4 in positive char
                 positive_char.append(e4[1])
 
-            inter_char = [x for x in positive_char if x not in negative_char]        
-            if len(inter_char) > 0:
-                print("find char ", inter_char[0])
-                piece_index = self.find_piece(inter_char)
+            positive_char = [x for x in positive_char if x not in negative_char]        
+                
+            piece_index = self.find_piece(positive_char, negative_char)
+            if piece_index != -1:
+                print("selected piece ", piece_index)
+                return piece_index
+            else:
+                positive_char = range(8) #take all char
+                negative_char = [] #reset negative for taking only level 1
+                for e1 in self.opportunity[1]:  #take opportunity level 1 (worse for me)
+                    if e1[1] not in negative_char:
+                        negative_char.append(e1[1])
+                positive_char = [x for x in positive_char if x not in negative_char]        
+                
+                piece_index = self.find_piece(positive_char, negative_char)
                 if piece_index != -1:
-                    return piece_index   
+                    print("selected piece ", piece_index)
+                    return piece_index        
+
 
         
         return random.randint(0, 15)
 
     def place_piece(self) -> tuple[int, int]:
+        self.check_opportunity() 
+        print(self.opportunity)
+
+        piece_index = self.get_game().get_selected_piece()
+        piece = self.get_game().get_piece_charachteristics(piece_index)
+
+        piece_char = []
+        #take piece char
+        if piece.HIGH == True:
+            piece_char.append(0)
+        else:
+            piece_char.append(4)
+        if piece.COLOURED == True:
+            piece_char.append(1)
+        else:
+            piece_char.append(5)
+        if piece.SOLID == True:
+            piece_char.append(2)
+        else:
+            piece_char.append(6)
+        if piece.SQUARE == True:
+            piece_char.append(3)
+        else:
+            piece_char.append(7)
+
+        positive_op = []
+        for e1 in self.opportunity[1]:  #take opportunity level 1 (best for me)
+            if e1 not in positive_op:
+                positive_op.append(e1)
+        for op in positive_op:
+            if op[1] in piece_char:
+                return op[0][0]
+
+
         return random.randint(0, 3), random.randint(0, 3)
 
-    def find_piece(self, char) -> int:
+    def find_piece(self, positive_char, negative_char) -> int:
+        '''
+        Return the index of a piece that satisfies positive char and doesn't have negative char
+        Rturn -1 if there aren't pieces like that 
+        '''
         
+        # take all pieces not in board
+        pieces_not_in_board = [x for x in range(16) if x not in self.get_game().get_board_status()]
         piesces_match_char = []
-       
-        for c in char:
-            if c == 0:
-                for i in range(16):
+        for i in pieces_not_in_board:  #take pieces that have at least one positive char 
+            for c in positive_char:
+                if c == 0:
                     if self.get_game().get_piece_charachteristics(i).HIGH == True and i not in piesces_match_char:
                         piesces_match_char.append(i)
-            elif c == 1:    
-                for i in range(16):
+                elif c == 1:    
                     if self.get_game().get_piece_charachteristics(i).COLOURED == True and i not in piesces_match_char:
                         piesces_match_char.append(i)
-            elif c == 2:
-                for i in range(16):
+                elif c == 2:
                     if self.get_game().get_piece_charachteristics(i).SOLID == True and i not in piesces_match_char:
                         piesces_match_char.append(i)   
-            elif c == 3:
-                for i in range(16):
+                elif c == 3:
                     if self.get_game().get_piece_charachteristics(i).SQUARE == True and i not in piesces_match_char:
                         piesces_match_char.append(i)   
-            elif c == 4:
-                for i in range(16):
+                elif c == 4:
                     if self.get_game().get_piece_charachteristics(i).HIGH == False and i not in piesces_match_char:
                         piesces_match_char.append(i)  
-            elif c == 5:
-                for i in range(16):
+                elif c == 5:
                     if self.get_game().get_piece_charachteristics(i).COLOURED == False and i not in piesces_match_char:
                         piesces_match_char.append(i)   
-            elif c == 6:
-                for i in range(16):
+                elif c == 6:
                     if self.get_game().get_piece_charachteristics(i).SOLID == False and i not in piesces_match_char:
                         piesces_match_char.append(i)   
-            elif c == 7:
-                for i in range(16):
+                elif c == 7:
                     if self.get_game().get_piece_charachteristics(i).SQUARE == False and i not in piesces_match_char:
                         piesces_match_char.append(i)
-            
-            for e in piesces_match_char:
-                if e not in self.get_game().get_board_status():
-                    return e   #return index of a piece not in board
-            return -1 #return -1 if thera isn't any piece that match the char and isn't already place                                                        
+            for c in negative_char:
+                if c == 0:
+                    if self.get_game().get_piece_charachteristics(i).HIGH == True and i in piesces_match_char:
+                        piesces_match_char.remove(i)
+                elif c == 1:    
+                    if self.get_game().get_piece_charachteristics(i).COLOURED == True and i in piesces_match_char:
+                        piesces_match_char.remove(i)
+                elif c == 2:
+                    if self.get_game().get_piece_charachteristics(i).SOLID == True and i in piesces_match_char:
+                        piesces_match_char.remove(i)   
+                elif c == 3:
+                    if self.get_game().get_piece_charachteristics(i).SQUARE == True and i in piesces_match_char:
+                        piesces_match_char.remove(i)   
+                elif c == 4:
+                    if self.get_game().get_piece_charachteristics(i).HIGH == False and i in piesces_match_char:
+                        piesces_match_char.remove(i)  
+                elif c == 5:
+                    if self.get_game().get_piece_charachteristics(i).COLOURED == False and i in piesces_match_char:
+                        piesces_match_char.remove(i)   
+                elif c == 6:
+                    if self.get_game().get_piece_charachteristics(i).SOLID == False and i in piesces_match_char:
+                        piesces_match_char.remove(i)   
+                elif c == 7:
+                    if self.get_game().get_piece_charachteristics(i).SQUARE == False and i in piesces_match_char:
+                        piesces_match_char.remove(i)            
+                
+        if len(piesces_match_char) > 0: #if there are at least one matched element return it
+            return piesces_match_char[0]  
+        return -1 #return -1 if thera isn't any piece that match the char and isn't already place                                                        
                      
 
     def save_opportunity(self, vet, i, verticale, char) -> None:
@@ -294,35 +365,7 @@ class myMinMax(quarto.Player):
             
             self.save_opportunity(diag, -1, 1, 7)
             
-        '''
-        HighMat = np.zeros((4,4)) 
-        ColMat = np.zeros((4,4))
-        SquMat = np.zeros((4,4)) 
-        SolMat = np.zeros((4,4))
-        for i in range(4):      #loop for mark free place(-1), place used by other char(0), place of the right char(1) 
-            for j in range(4): #loop over element -> make it more pythonic
-                if mat[i, j] == -1:
-                    HighMat[i, j] = -1
-                    ColMat[i,j] = -1
-                    SquMat[i,j] = -1
-                    SolMat[i,j] = -1
-                elif self.get_game().get_piece_charachteristics(mat[i,j]).HIGH:
-                    HighMat[i,j] = 1
-                elif self.get_game().get_piece_charachteristics(mat[i,j]).COLOURED:
-                    ColMat[i,j] = 1
-                elif self.get_game().get_piece_charachteristics(mat[i,j]).SQUARE:
-                    SquMat[i,j] = 1 
-                elif self.get_game().get_piece_charachteristics(mat[i,j]).SOLID:
-                    SolMat[i,j] = 1       
-        '''
        
-
-
-
-
-
-
-
 #to be deleted
 def play_one_game(game: quarto.Quarto, player1: quarto.Player, player2: quarto.Player):
     '''
@@ -373,7 +416,7 @@ class RandomPlayer(quarto.Player):
 def main():
     game = quarto.Quarto()
     #play_one_game(game, RandomPlayer(game), RandomPlayer(game))
-    play_n_game(game, myMinMax(game), RandomPlayer(game), 100)
+    play_n_game(game, myMinMax(game), RandomPlayer(game), 1)
 
 if __name__ == '__main__':
     main()
