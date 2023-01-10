@@ -10,7 +10,7 @@ class myMinMax(quarto.Player):
 
     def __init__(self, quarto: quarto.Quarto) -> None:
         super().__init__(quarto)
-        self.opportunity = {}       #dict key=number of element value = list of tuple of a list of position tuple and int that is charachteristics
+        self.opportunity = {}       #dict key=opportunity level, value= list of tuple of a list of position tuple and int that is charachteristics
 
     def choose_piece(self) -> int:
         self.check_opportunity() 
