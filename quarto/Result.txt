@@ -1,0 +1,2 @@
+myMinMax
+10000 match -> winning rate = 0.9811

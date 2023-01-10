@@ -450,7 +450,7 @@ class RandomPlayer(quarto.Player):
 def main():
     game = quarto.Quarto()
     #play_one_game(game, RandomPlayer(game), RandomPlayer(game))
-    play_n_game(game, myMinMax(game), RandomPlayer(game), 1000)
+    play_n_game(game, myMinMax(game), RandomPlayer(game), 10000)
 
 if __name__ == '__main__':
     main()
