@@ -5,6 +5,8 @@ import logging
 import argparse
 import random
 import quarto
+import myMinMax
+import pastimesStrategy
 
 
 class RandomPlayer(quarto.Player):
@@ -54,7 +56,7 @@ def play_n_game(game: quarto.Quarto, player1: quarto.Player, player2: quarto.Pla
 def main():
     game = quarto.Quarto()
     #play_one_game(game, RandomPlayer(game), RandomPlayer(game))
-    play_n_game(game, RandomPlayer(game), RandomPlayer(game), 100)
+    play_n_game(game, pastimesStrategy.pastimes(game), myMinMax.myMinMax(game), 100)
 
 
 if __name__ == '__main__':
