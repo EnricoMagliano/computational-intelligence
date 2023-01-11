@@ -4,6 +4,7 @@ import random
 import quarto
 import numpy as np
 import operator as op
+import myMinMax 
 
 class pastimes(quarto.Player):
     '''ourpastimes.com strategy'''
@@ -78,7 +79,7 @@ class pastimes(quarto.Player):
         for p in pieces_without_selected_char:
             if p not in self.get_game().get_board_status() and self.check_l1(p) == True:
                     return p                        
-
+        print("super allert sto sparando a caso")
         #if there aren't any other posibilities return random
         return random.randint(0, 15)
 
@@ -120,6 +121,7 @@ class pastimes(quarto.Player):
             if e1 not in positive_op:
                 positive_op.append(e1)
         #print(positive_op)
+        
         #loop over level 1 opportunity until found one with char of selected piece
         for op in positive_op:  
             if op[1] in piece_char: 
@@ -420,63 +422,3 @@ class pastimes(quarto.Player):
         if sum(1 for x in diag if self.get_game().get_piece_charachteristics(x).SQUARE and x != -1) == 0:
             
             self.save_opportunity(diag, -1, 1, 7)        
-
-
-#to be deleted
-
-
-
-
-def play_one_game(game: quarto.Quarto, player1: quarto.Player, player2: quarto.Player):
-    '''
-    Play one game player1 against player2, print the winner
-    '''
-    game.set_players((player1, player2))
-    winner = game.run()
-    logging.warning(f"main: Winner: player {winner}")
-
-def play_n_game(game: quarto.Quarto, player1: quarto.Player, player2: quarto.Player, n: int):
-    '''
-    Play n games player1 against player2, print the winner ratio of player1 over player2, switching the starter at each game
-    '''
-
-    win_count = 0
-    last_start = 1
-    for i in range(n):
-        game.reset()
-
-        if last_start == 1:
-            game.set_players((player1, player2))
-            last_start = 0
-        else:
-            game.set_players((player2, player1))
-            last_start = 1
-
-        winner = game.run()
-        
-        if (winner == 0 and last_start == 0) or (winner == 1 and last_start == 1): #player1 win
-            win_count+=1
-                    
-    logging.warning(f"main: Winner ratio of player1: {win_count/n}")   
-
-class RandomPlayer(quarto.Player):
-    """Random player"""
-
-    def __init__(self, quarto: quarto.Quarto) -> None:
-        super().__init__(quarto)
-
-    def choose_piece(self) -> int:
-        return random.randint(0, 15)
-
-    def place_piece(self) -> tuple[int, int]:
-        return random.randint(0, 3), random.randint(0, 3)
-
-
-
-def main():
-    game = quarto.Quarto()
-    #play_one_game(game, RandomPlayer(game), RandomPlayer(game))
-    play_n_game(game, pastimes(game), RandomPlayer(game), 1000)
-
-if __name__ == '__main__':
-    main()
