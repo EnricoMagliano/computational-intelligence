@@ -5,7 +5,7 @@ import quarto
 import numpy as np
 import operator as op
 
-class myMinMax(quarto.Player):
+class MyMinMax(quarto.Player):
     '''My MinMax strategy'''
 
     def __init__(self, quarto: quarto.Quarto) -> None:

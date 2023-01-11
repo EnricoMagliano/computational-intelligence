@@ -1,2 +1,6 @@
 myMinMax
-10000 match -> winning rate = 0.9811
+10000 match -> winning rate = 0.9811 against random
+
+pastimes
+1000 match -> 0.433 against myMinMax
+10000 match ->   against random
