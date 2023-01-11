@@ -1,6 +1,7 @@
 myMinMax
-10000 match -> winning rate = 0.9811 against random
+10000 match -> 0.9811 against random
 
 pastimes
-1000 match -> 0.433 against myMinMax
-10000 match ->   against random
+1000 match -> 0.433/0.443 against myMinMax
+1000 match -> 0.415 against myMinMax (pastimes without block strategy)
+10000 match ->  0.9813 against random

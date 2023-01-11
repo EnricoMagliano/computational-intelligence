@@ -14,7 +14,7 @@ class MyMinMax(quarto.Player):
 
     def choose_piece(self) -> int:
         self.check_opportunity() 
-        print(self.opportunity)
+        #print(self.opportunity)
 
         negative_char = []
         positive_char = []
@@ -27,14 +27,14 @@ class MyMinMax(quarto.Player):
         for e2 in self.opportunity[2]:  #take opportunity level 2 (best for me)
             if e2[1] not in positive_char:
                 positive_char.append(e2[1])  
-        print("pos ", positive_char)
-        print("neg ", negative_char)
+        #print("pos ", positive_char)
+        #print("neg ", negative_char)
 
         positive_char = [x for x in positive_char if x not in negative_char] #take only positive char that are not in negative char
         
         piece_index = self.find_piece(positive_char, negative_char) 
         if piece_index != -1:
-                print("selected piece ", piece_index)
+                #print("selected piece ", piece_index)
                 return piece_index  
         else:   
             for e4 in self.opportunity[4]: #add level 4 in positive char
@@ -44,7 +44,7 @@ class MyMinMax(quarto.Player):
                 
             piece_index = self.find_piece(positive_char, negative_char)
             if piece_index != -1:
-                print("selected piece ", piece_index)
+                #print("selected piece ", piece_index)
                 return piece_index
             else:
                 positive_char = range(8) #take all char
@@ -56,7 +56,7 @@ class MyMinMax(quarto.Player):
                 
                 piece_index = self.find_piece(positive_char, negative_char)
                 if piece_index != -1:
-                    print("selected piece ", piece_index)
+                    #print("selected piece ", piece_index)
                     return piece_index        
 
 
@@ -66,7 +66,7 @@ class MyMinMax(quarto.Player):
     def place_piece(self) -> tuple[int, int]: #index are inverted
         #compute opportunity
         self.check_opportunity() 
-        print(self.opportunity)
+        #print(self.opportunity)
 
         #take selected piece
         piece_index = self.get_game().get_selected_piece()
@@ -98,13 +98,20 @@ class MyMinMax(quarto.Player):
         for e1 in self.opportunity[1]:  #take opportunity level 1 (best for me)
             if e1 not in positive_op:
                 positive_op.append(e1)
-        print(positive_op)
+        #print(positive_op)
         #loop over level 1 opportunity until found one with char of selected piece
         for op in positive_op:  
             if op[1] in piece_char: 
                 return op[0][0][1], op[0][0][0]
 
-
+        #check if need a block and try to block 
+        '''
+        #worsen the result
+        if len(positive_op) > 0:
+            move = self.block_next(piece)
+            if move != None:
+                return move
+        '''
         positive_op = []
         for e3 in self.opportunity[3]:  #take opportunity level 3 (good for me)
             if e3 not in positive_op:
@@ -134,6 +141,88 @@ class MyMinMax(quarto.Player):
                 if board[i][j] == -1:
                     return j, i      #return first free place found       
 
+    def block_next(self, sel_piece) -> tuple[int, int]:
+        '''
+        Check if next turn, I have to choose a piece that let my opponent win.
+        In this case return a position when place piece to block the winning.
+        ''' 
+        positive_char_opponent = {} #dict where key is l1 char and value the number of place 
+        for e1 in self.opportunity[1]:
+            if e1[1] not in positive_char_opponent:
+                positive_char_opponent[e1[1]] = 1
+            else:
+                 positive_char_opponent[e1[1]] += 1 
+
+        #print("in block", positive_char_opponent)
+
+        #take all piece indexes not already placed in the board
+        free_pieces = list(range(16))
+        for r in self.get_game().get_board_status():
+            for p in r:
+                if p != -1:
+                    free_pieces.remove(p)    
+        
+        for p in free_pieces:
+            match = False 
+            for c in positive_char_opponent:
+                if c == 0:
+                    if self.get_game().get_piece_charachteristics(p).HIGH == True:
+                        match = True
+                elif c == 1:    
+                    if self.get_game().get_piece_charachteristics(p).COLOURED == True:
+                        match = True
+                elif c == 2:
+                    if self.get_game().get_piece_charachteristics(p).SOLID == True:
+                        match = True   
+                elif c == 3:
+                    if self.get_game().get_piece_charachteristics(p).SQUARE == True:
+                        match = True   
+                elif c == 4:
+                    if self.get_game().get_piece_charachteristics(p).HIGH == False:
+                        match = True  
+                elif c == 5:
+                    if self.get_game().get_piece_charachteristics(p).COLOURED == False:
+                        match = True   
+                elif c == 6:
+                    if self.get_game().get_piece_charachteristics(p).SOLID == False:
+                        match = True  
+                elif c == 7:
+                    if self.get_game().get_piece_charachteristics(p).SQUARE == False:
+                        match = True 
+                
+            if match == False: #find a piece that doesn't match
+                #print("find piece not match ", p)
+                return None   #no need block, find a piece without char in l1
+
+        #search char with one place
+        blockable_char = []
+        for c in positive_char_opponent:
+            if positive_char_opponent[c] == 1: #try to block char c if have one place
+                blockable_char.append[c]
+        #print("blockable char ", blockable_char)
+
+        for c in blockable_char:
+            place = None
+            not_in_l2 = True
+            for e1 in self.opportunity[1]:
+                if e1[1] == c:
+                    place = e1[0]
+            for e2 in self.opportunity[2]:
+                for place_2 in e2[0]:
+                    if place_2 == place:
+                        not_in_l2 = False
+            if not_in_l2:
+                #print("not il l2, ", place)   
+                return place[1], place[0]    
+
+       
+        place = None
+        for e1 in self.opportunity[1]:
+            if e1[1] == random.choice(blockable_char):
+                place = e1[0]
+        #print("place in l2, ", place)        
+        return place[1], place[0] 
+    
     def find_piece(self, positive_char, negative_char) -> int:
         '''
         Return the index of a piece that satisfies positive char and doesn't have negative char

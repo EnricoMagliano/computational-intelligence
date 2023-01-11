@@ -112,7 +112,7 @@ class Pastimes(quarto.Player):
         
         #compute opportunity
         self.check_opportunity() 
-        print(self.opportunity)
+        #print(self.opportunity)
 
         #take selected piece
         piece_index = self.get_game().get_selected_piece()
@@ -152,11 +152,13 @@ class Pastimes(quarto.Player):
                 return op[0][0][1], op[0][0][0]
 
         #check if need a block and try to block
+        '''
         if len(positive_op) > 0:
             move = self.block_next(piece)
             if move != None:
                 return move
-
+        '''
+        
         positive_op = []
         for e3 in self.opportunity[3]:  #take opportunity level 3 (good for me)
             if e3 not in positive_op:
@@ -198,7 +200,7 @@ class Pastimes(quarto.Player):
             else:
                  positive_char_opponent[e1[1]] += 1 
 
-        print("in block", positive_char_opponent)
+        #print("in block", positive_char_opponent)
 
         #take all piece indexes not already placed in the board
         free_pieces = list(range(16))
@@ -208,8 +210,6 @@ class Pastimes(quarto.Player):
                     free_pieces.remove(p)    
         
         for p in free_pieces:
-            
-            
             match = False 
             for c in positive_char_opponent:
                 if c == 0:
@@ -238,6 +238,7 @@ class Pastimes(quarto.Player):
                         match = True 
                 
             if match == False: #find a piece that doesn't match
+                #print("find piece not match ", p)
                 return None   #no need block, find a piece without char in l1
 
         #search char with one place
@@ -245,6 +246,7 @@ class Pastimes(quarto.Player):
         for c in positive_char_opponent:
             if positive_char_opponent[c] == 1: #try to block char c if have one place
                 blockable_char.append[c]
+        #print("blockable char ", blockable_char)
 
         for c in blockable_char:
             place = None
@@ -256,7 +258,8 @@ class Pastimes(quarto.Player):
                 for place_2 in e2[0]:
                     if place_2 == place:
                         not_in_l2 = False
-            if not_in_l2:   
+            if not_in_l2:
+                #print("not il l2, ", place)   
                 return place[1], place[0]    
 
        
@@ -264,6 +267,7 @@ class Pastimes(quarto.Player):
         for e1 in self.opportunity[1]:
             if e1[1] == random.choice(blockable_char):
                 place = e1[0]
+        #print("place in l2, ", place)        
         return place[1], place[0]        
 
 
