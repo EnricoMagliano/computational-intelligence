@@ -11,11 +11,13 @@ class pastimes(quarto.Player):
     def __init__(self, quarto: quarto.Quarto) -> None:
         super().__init__(quarto)
         self.opportunity = {} #dict key=opportunity level, value= list of tuple of a list of position tuple and int that is charachteristics
-        self.selected_char = random.randint(0,7)
+        self.selected_char = random.randint(0,7) #select a char randomny
 
     def choose_piece(self) -> int:
+        #print("sel char ", self.selected_char)
+        opposite_char = self.selected_char-4 if self.selected_char > 3 else self.selected_char+4
         self.check_opportunity()
-        print(self.opportunity)
+        #print(self.opportunity)
         
         selected_char_l1 = False
         for e1 in self.opportunity[1]:
@@ -27,30 +29,52 @@ class pastimes(quarto.Player):
             if e2[1] == self.selected_char:
                 selected_char_l2 = True
                 break
+
+        #print("si in l1") if selected_char_l1 else print("no in l1")
+        #print("si in l2") if selected_char_l2 else print("no in l2")   
+
         #if there aren't pair (l2) or tripletes (l1) of selected char, return a piece with selected char if doesn't match other l1 char        
         if selected_char_l1 == False and selected_char_l2 == False: 
             pieces_with_selected_char = self.select_pieces(self.selected_char)
+            #print("piece with selected char ", pieces_with_selected_char)
             for p in pieces_with_selected_char:
                  if p not in self.get_game().get_board_status() and self.check_l1(p) == True:
+                    #print("return ", p)
                     return p
+            #gestire pezzi finiti
+            print("allert1 pezzi finiti")     
         
         #if there are pair(l2) but there aren't tripletes(l1)
         #check number of element without selected char if even(pari)
         #return a piece with selected char, otherwise a piece without it
         if selected_char_l1 == False and selected_char_l2 == True:
             pieces_with_selected_char = self.select_pieces(self.selected_char)
-            pieces_without_selected_char = self.select_pieces([self.selected_char-4 if self.selected_char > 3 else self.selected_char+4])
-            if len(pieces_without_selected_char)%2 == 0:
-                 for p in pieces_with_selected_char:
+            #print("opposite char ",opposite_char)
+
+            pieces_without_selected_char_tot = self.select_pieces(opposite_char)
+            pieces_without_selected_char = []
+            for p in pieces_without_selected_char_tot: #filter pieces, take only the ones not already in the board
+                if p not in self.get_game().get_board_status():
+                    pieces_without_selected_char.append(p)
+            #print("piece without sel char: ", pieces_without_selected_char)
+
+            if len(pieces_without_selected_char)%2 == 0: #even check
+                for p in pieces_with_selected_char:
                     if p not in self.get_game().get_board_status() and self.check_l1(p) == True:
+                        #print("return ", p)
                         return p
+                #gestire pezzi finiti
+                print("allert2 pezzi finiti")
             else:
                 for p in pieces_without_selected_char:
                     if p not in self.get_game().get_board_status() and self.check_l1(p) == True:
+                        print("return ", p)
                         return p
+                #gestire pezzi finiti
+                print("allert3 pezzi finiti")        
 
         #if there are tripletes of selected char return a piece without selected char
-        pieces_without_selected_char = self.select_pieces([self.selected_char-4 if self.selected_char > 3 else self.selected_char+4])
+        pieces_without_selected_char = self.select_pieces(opposite_char)
         for p in pieces_without_selected_char:
             if p not in self.get_game().get_board_status() and self.check_l1(p) == True:
                     return p                        
@@ -63,7 +87,7 @@ class pastimes(quarto.Player):
     def place_piece(self) -> tuple[int, int]:
         #compute opportunity
         self.check_opportunity() 
-        print(self.opportunity)
+        #print(self.opportunity)
 
         #take selected piece
         piece_index = self.get_game().get_selected_piece()
@@ -95,7 +119,7 @@ class pastimes(quarto.Player):
         for e1 in self.opportunity[1]:  #take opportunity level 1 (best for me)
             if e1 not in positive_op:
                 positive_op.append(e1)
-        print(positive_op)
+        #print(positive_op)
         #loop over level 1 opportunity until found one with char of selected piece
         for op in positive_op:  
             if op[1] in piece_char: 
@@ -452,7 +476,7 @@ class RandomPlayer(quarto.Player):
 def main():
     game = quarto.Quarto()
     #play_one_game(game, RandomPlayer(game), RandomPlayer(game))
-    play_n_game(game, pastimes(game), RandomPlayer(game), 100)
+    play_n_game(game, pastimes(game), RandomPlayer(game), 1000)
 
 if __name__ == '__main__':
     main()
