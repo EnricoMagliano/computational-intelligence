@@ -141,11 +141,13 @@ class MyMinMax(quarto.Player):
                 if board[i][j] == -1:
                     return j, i      #return first free place found       
 
-    def block_next(self, sel_piece) -> tuple[int, int]:
+    def block_next(self, sel_piece_index) -> tuple[int, int]:
         '''
         Check if next turn, I have to choose a piece that let my opponent win.
         In this case return a position when place piece to block the winning.
         ''' 
+        sel_piece = self.get_game().get_piece_charachteristics(sel_piece_index)
+
         positive_char_opponent = {} #dict where key is l1 char and value the number of place 
         for e1 in self.opportunity[1]:
             if e1[1] not in positive_char_opponent:
@@ -157,6 +159,7 @@ class MyMinMax(quarto.Player):
 
         #take all piece indexes not already placed in the board
         free_pieces = list(range(16))
+        free_pieces.remove(sel_piece_index) #remove selected piece
         for r in self.get_game().get_board_status():
             for p in r:
                 if p != -1:
@@ -198,7 +201,7 @@ class MyMinMax(quarto.Player):
         blockable_char = []
         for c in positive_char_opponent:
             if positive_char_opponent[c] == 1: #try to block char c if have one place
-                blockable_char.append[c]
+                blockable_char.append(c)
         #print("blockable char ", blockable_char)
 
         for c in blockable_char:
@@ -206,7 +209,7 @@ class MyMinMax(quarto.Player):
             not_in_l2 = True
             for e1 in self.opportunity[1]:
                 if e1[1] == c:
-                    place = e1[0]
+                    place = e1[0][0]
             for e2 in self.opportunity[2]:
                 for place_2 in e2[0]:
                     if place_2 == place:
@@ -216,12 +219,15 @@ class MyMinMax(quarto.Player):
                 return place[1], place[0]    
 
        
-        place = None
-        for e1 in self.opportunity[1]:
-            if e1[1] == random.choice(blockable_char):
-                place = e1[0]
-        #print("place in l2, ", place)        
-        return place[1], place[0] 
+        if len(blockable_char) > 0: 
+            place = None
+            random_choose = random.choice(blockable_char)
+            for e1 in self.opportunity[1]:
+                if e1[1] == random_choose:
+                    place = e1[0][0]
+            #print("place in l2, ", place)        
+            return place[1], place[0]   
+        return None  #if there aren't any single place for one char -> unblockable -> return None           
     
     def find_piece(self, positive_char, negative_char) -> int:
         '''

@@ -22,6 +22,7 @@ class Pastimes(quarto.Player):
 
 
     def choose_piece(self) -> int:
+        print("pastimes choose")
         #check if a new game is started
         if np.all(self.get_game().get_board_status() == -1):
             self.reset()
@@ -30,7 +31,7 @@ class Pastimes(quarto.Player):
         #print("sel char ", self.selected_char)
         opposite_char = self.selected_char-4 if self.selected_char > 3 else self.selected_char+4
         self.check_opportunity()
-        #print(self.opportunity)
+        print(self.opportunity)
         
         selected_char_l1 = False
         for e1 in self.opportunity[1]:
@@ -43,8 +44,8 @@ class Pastimes(quarto.Player):
                 selected_char_l2 = True
                 break
 
-        #print("si in l1") if selected_char_l1 else print("no in l1")
-        #print("si in l2") if selected_char_l2 else print("no in l2")   
+        print("si in l1") if selected_char_l1 else print("no in l1")
+        print("si in l2") if selected_char_l2 else print("no in l2")   
 
         #if there aren't pair (l2) or tripletes (l1) of selected char, return a piece with selected char if doesn't match other l1 char        
         if selected_char_l1 == False and selected_char_l2 == False: 
@@ -107,17 +108,18 @@ class Pastimes(quarto.Player):
     
 
     def place_piece(self) -> tuple[int, int]:
+        print("pasttimes place")
         if np.all(self.get_game().get_board_status() == -1):
             self.reset()
         
         #compute opportunity
         self.check_opportunity() 
-        #print(self.opportunity)
+        print(self.opportunity)
 
         #take selected piece
         piece_index = self.get_game().get_selected_piece()
         piece = self.get_game().get_piece_charachteristics(piece_index)
-        #print("index piece ", piece_index)
+        print("index piece ", piece_index)
         piece_char = []
         
         #take piece char
@@ -137,14 +139,14 @@ class Pastimes(quarto.Player):
             piece_char.append(3)
         else:
             piece_char.append(7)
-        #print("piece char ", piece_char)
+        print("piece char ", piece_char)
 
 
         positive_op = []
         for e1 in self.opportunity[1]:  #take opportunity level 1 (best for me)
             if e1 not in positive_op:
                 positive_op.append(e1)
-        #print(positive_op)
+        print(positive_op)
         
         #loop over level 1 opportunity until found one with char of selected piece
         for op in positive_op:  
@@ -152,12 +154,12 @@ class Pastimes(quarto.Player):
                 return op[0][0][1], op[0][0][0]
 
         #check if need a block and try to block
-        '''
+        
         if len(positive_op) > 0:
-            move = self.block_next(piece)
+            move = self.block_next(piece_index)
             if move != None:
                 return move
-        '''
+        
         
         positive_op = []
         for e3 in self.opportunity[3]:  #take opportunity level 3 (good for me)
@@ -188,11 +190,13 @@ class Pastimes(quarto.Player):
                 if board[i][j] == -1:
                     return j, i      #return first free place found 
 
-    def block_next(self, sel_piece) -> tuple[int, int]:
+    def block_next(self, sel_piece_index) -> tuple[int, int]:
         '''
         Check if next turn, I have to choose a piece that let my opponent win.
         In this case return a position when place piece to block the winning.
         ''' 
+        sel_piece = self.get_game().get_piece_charachteristics(sel_piece_index)
+
         positive_char_opponent = {} #dict where key is l1 char and value the number of place 
         for e1 in self.opportunity[1]:
             if e1[1] not in positive_char_opponent:
@@ -200,10 +204,11 @@ class Pastimes(quarto.Player):
             else:
                  positive_char_opponent[e1[1]] += 1 
 
-        #print("in block", positive_char_opponent)
+        print("in block", positive_char_opponent)
 
         #take all piece indexes not already placed in the board
         free_pieces = list(range(16))
+        free_pieces.remove(sel_piece_index) #remove selected piece
         for r in self.get_game().get_board_status():
             for p in r:
                 if p != -1:
@@ -238,37 +243,44 @@ class Pastimes(quarto.Player):
                         match = True 
                 
             if match == False: #find a piece that doesn't match
-                #print("find piece not match ", p)
+                print("find piece not match ", p)
                 return None   #no need block, find a piece without char in l1
 
         #search char with one place
         blockable_char = []
         for c in positive_char_opponent:
             if positive_char_opponent[c] == 1: #try to block char c if have one place
-                blockable_char.append[c]
-        #print("blockable char ", blockable_char)
+                blockable_char.append(c)
+        print("blockable char ", blockable_char)
+
+
+        '''
+        da fixare controllando meglio l2 e riaggiornando l1 in base a dove posizione il pezzo scelto
+        '''
 
         for c in blockable_char:
             place = None
             not_in_l2 = True
             for e1 in self.opportunity[1]:
                 if e1[1] == c:
-                    place = e1[0]
+                    place = e1[0][0]
             for e2 in self.opportunity[2]:
                 for place_2 in e2[0]:
                     if place_2 == place:
                         not_in_l2 = False
             if not_in_l2:
-                #print("not il l2, ", place)   
+                print("not il l2, ", place)   
                 return place[1], place[0]    
 
-       
-        place = None
-        for e1 in self.opportunity[1]:
-            if e1[1] == random.choice(blockable_char):
-                place = e1[0]
-        #print("place in l2, ", place)        
-        return place[1], place[0]        
+        if len(blockable_char) > 0: 
+            place = None
+            random_choose = random.choice(blockable_char)
+            for e1 in self.opportunity[1]:
+                if e1[1] == random_choose:
+                    place = e1[0][0]
+            print("place in l2, ", place)        
+            return place[1], place[0]   
+        return None  #if there aren't any single place for one char -> unblockable -> return None        
 
 
        
@@ -277,6 +289,7 @@ class Pastimes(quarto.Player):
         '''
         Return true if piece doesn't have charateristic in l1, otherwise return false
         '''
+        print("in check l1")
         l1 = []
         for e1 in self.opportunity[1]:
             if e1[1] not in l1:
