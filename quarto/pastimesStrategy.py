@@ -154,7 +154,7 @@ class Pastimes(quarto.Player):
                 return op[0][0][1], op[0][0][0]
 
         #check if need a block and try to block
-        
+         
         if len(positive_op) > 0:
             move = self.block_next(piece_index)
             if move != None:
