@@ -5,6 +5,45 @@ import quarto
 import numpy as np
 import operator as op
 
+def get_pieces_char(agent, index):
+    '''
+    Return array of the characteristic of the index piece
+    '''
+    piece = agent.get_game().get_piece_charachteristics(index)
+    #print("index piece ", piece_index)
+    piece_char = []
+    
+    #take piece char
+    if piece.HIGH == True:
+        piece_char.append(0)
+    else:
+        piece_char.append(4)
+    if piece.COLOURED == True:
+        piece_char.append(1)
+    else:
+        piece_char.append(5)
+    if piece.SOLID == True:
+        piece_char.append(2)
+    else:
+        piece_char.append(6)
+    if piece.SQUARE == True:
+        piece_char.append(3)
+    else:
+        piece_char.append(7)
+
+    #print("piece char ", piece_char)
+    return piece_char
+
+def pieces(agent):
+    '''
+    Return a dict of piece indexes as value and array of charateristic as value
+    '''
+    pieces = dict()
+    for p in range(16):
+        pieces[p] = get_pieces_char(agent, p)
+
+    return pieces    
+
 def save_opportunity(agent, vet, i, verticale, char) -> None:
         free_places = []
         ind_diag = 0
@@ -27,6 +66,11 @@ def save_opportunity(agent, vet, i, verticale, char) -> None:
         #print("save ", (free_places, char)) 
 
 def check_opportunity(agent) -> None:
+        '''
+        return a dict with all the opportunity on the board.
+        Key is the level of the opportunity
+        Value is an arrey of tuple (array of free position of the opp, char of opp)
+        '''
         agent.opportunity = {1: [], 2: [], 3: [], 4: []} #reset opportunity vector
         mat = agent.get_game().get_board_status() #get board
         #print("mat in check ")
