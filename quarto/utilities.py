@@ -50,6 +50,7 @@ def block_next(self, sel_piece_index) -> tuple[int, int]:
         '''
         Check if next turn, I have to choose a piece that let my opponent win.
         In this case return a position when place piece to block the winning.
+        Otherwise return None
         ''' 
         sel_piece = self.get_game().get_piece_charachteristics(sel_piece_index)
 
@@ -110,10 +111,16 @@ def block_next(self, sel_piece_index) -> tuple[int, int]:
         print("blockable char ", blockable_char)
 
 
-        '''
-        da fixare controllando meglio l2 e riaggiornando l1 in base a dove posizione il pezzo scelto
-        '''
 
+        for b_c in blockable_char:
+            for l1 in self.opportunity[1]:
+                if l1[1] == b_c:
+                    place = l1[0][0]
+                    if simulation(self, place, sel_piece_index, free_pieces):
+                         return place[1], place[0]
+        return None  #if there aren't any single place for one char -> unblockable -> return None
+
+        '''
         for c in blockable_char:
             place = None
             not_in_l2 = True
@@ -127,7 +134,7 @@ def block_next(self, sel_piece_index) -> tuple[int, int]:
             if not_in_l2:
                 print("not il l2, ", place)   
                 return place[1], place[0]    
-
+        
         if len(blockable_char) > 0: 
             place = None
             random_choose = random.choice(blockable_char)
@@ -137,7 +144,22 @@ def block_next(self, sel_piece_index) -> tuple[int, int]:
             print("place in l2, ", place)        
             return place[1], place[0]   
         return None  #if there aren't any single place for one char -> unblockable -> return None        
-    
+        '''
+
+def simulation(self, place, piece_index, free_piece):
+    '''
+    Simulate placing the selected piece in the selected place.
+    If this doesn't compromise nothing return true, otherwise return False.
+    '''
+    for l2 in self.opportunity[2]:
+        if place in l2[0] and l2[1] in get_pieces_char(self, piece_index):
+            piece_no_match = False
+            for p in free_piece:
+                if l2[1] not in get_pieces_char(self, p):
+                    piece_no_match = True 
+            if piece_no_match == False:   
+                return False
+    return True        
 
 def save_opportunity(agent, vet, i, verticale, char) -> None:
         free_places = []
