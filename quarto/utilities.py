@@ -34,15 +34,110 @@ def get_pieces_char(agent, index):
     #print("piece char ", piece_char)
     return piece_char
 
-def pieces(agent):
+def free_pieces(agent):
     '''
-    Return a dict of piece indexes as value and array of charateristic as value
+    Return a dict of free piece indexes as value and array of charateristic as value
     '''
+    board = agent.get_game().get_board_status()
     pieces = dict()
     for p in range(16):
-        pieces[p] = get_pieces_char(agent, p)
+        if p not in board:
+            pieces[p] = get_pieces_char(agent, p)
 
     return pieces    
+
+def block_next(self, sel_piece_index) -> tuple[int, int]:
+        '''
+        Check if next turn, I have to choose a piece that let my opponent win.
+        In this case return a position when place piece to block the winning.
+        ''' 
+        sel_piece = self.get_game().get_piece_charachteristics(sel_piece_index)
+
+        positive_char_opponent = {} #dict where key is l1 char and value the number of place 
+        for e1 in self.opportunity[1]:
+            if e1[1] not in positive_char_opponent:
+                positive_char_opponent[e1[1]] = 1
+            else:
+                 positive_char_opponent[e1[1]] += 1 
+
+        print("in block", positive_char_opponent)
+
+        #take all piece indexes not already placed in the board
+        free_pieces = list(range(16))
+        free_pieces.remove(sel_piece_index) #remove selected piece
+        for r in self.get_game().get_board_status():
+            for p in r:
+                if p != -1:
+                    free_pieces.remove(p)    
+        
+        for p in free_pieces:
+            match = False 
+            for c in positive_char_opponent:
+                if c == 0:
+                    if self.get_game().get_piece_charachteristics(p).HIGH == True:
+                        match = True
+                elif c == 1:    
+                    if self.get_game().get_piece_charachteristics(p).COLOURED == True:
+                        match = True
+                elif c == 2:
+                    if self.get_game().get_piece_charachteristics(p).SOLID == True:
+                        match = True   
+                elif c == 3:
+                    if self.get_game().get_piece_charachteristics(p).SQUARE == True:
+                        match = True   
+                elif c == 4:
+                    if self.get_game().get_piece_charachteristics(p).HIGH == False:
+                        match = True  
+                elif c == 5:
+                    if self.get_game().get_piece_charachteristics(p).COLOURED == False:
+                        match = True   
+                elif c == 6:
+                    if self.get_game().get_piece_charachteristics(p).SOLID == False:
+                        match = True  
+                elif c == 7:
+                    if self.get_game().get_piece_charachteristics(p).SQUARE == False:
+                        match = True 
+                
+            if match == False: #find a piece that doesn't match
+                print("find piece not match ", p)
+                return None   #no need block, find a piece without char in l1
+
+        #search char with one place
+        blockable_char = []
+        for c in positive_char_opponent:
+            if positive_char_opponent[c] == 1: #try to block char c if have one place
+                blockable_char.append(c)
+        print("blockable char ", blockable_char)
+
+
+        '''
+        da fixare controllando meglio l2 e riaggiornando l1 in base a dove posizione il pezzo scelto
+        '''
+
+        for c in blockable_char:
+            place = None
+            not_in_l2 = True
+            for e1 in self.opportunity[1]:
+                if e1[1] == c:
+                    place = e1[0][0]
+            for e2 in self.opportunity[2]:
+                for place_2 in e2[0]:
+                    if place_2 == place:
+                        not_in_l2 = False
+            if not_in_l2:
+                print("not il l2, ", place)   
+                return place[1], place[0]    
+
+        if len(blockable_char) > 0: 
+            place = None
+            random_choose = random.choice(blockable_char)
+            for e1 in self.opportunity[1]:
+                if e1[1] == random_choose:
+                    place = e1[0][0]
+            print("place in l2, ", place)        
+            return place[1], place[0]   
+        return None  #if there aren't any single place for one char -> unblockable -> return None        
+    
 
 def save_opportunity(agent, vet, i, verticale, char) -> None:
         free_places = []
