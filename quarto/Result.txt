@@ -8,7 +8,8 @@ pastimes
 10000 match ->  0.9833 against random
 10000 match (no block strategy )->  0.9795 against random
 
-myPastimes
+myPastimes (with block strategy)
 10000 match -> 0.9835 agaist random
 10000 match -> 0.5065 agaist pastimes
+10000 match ->  against myMinMax
 
