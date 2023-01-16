@@ -57,7 +57,7 @@ def play_n_game(game: quarto.Quarto, player1: quarto.Player, player2: quarto.Pla
 def main():
     game = quarto.Quarto()
     #play_one_game(game, RandomPlayer(game), RandomPlayer(game))
-    play_n_game(game, myPastimes.MyPastimes(game), RandomPlayer(game), 10000)
+    play_n_game(game, myMinMax.MyMinMax(game), RandomPlayer(game), 10000)
 
 
 if __name__ == '__main__':

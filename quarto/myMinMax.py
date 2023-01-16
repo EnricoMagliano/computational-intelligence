@@ -4,6 +4,7 @@ import random
 import quarto
 import numpy as np
 import operator as op
+import utilities
 
 class MyMinMax(quarto.Player):
     '''My MinMax strategy'''
@@ -13,7 +14,7 @@ class MyMinMax(quarto.Player):
         self.opportunity = {}       #dict key=opportunity level, value= list of tuple of a list of position tuple and int that is charachteristics
 
     def choose_piece(self) -> int:
-        self.check_opportunity() 
+        utilities.check_opportunity(self) 
         #print(self.opportunity)
 
         negative_char = []
@@ -65,7 +66,7 @@ class MyMinMax(quarto.Player):
 
     def place_piece(self) -> tuple[int, int]: #index are inverted
         #compute opportunity
-        self.check_opportunity() 
+        utilities.check_opportunity(self) 
         #print(self.opportunity)
 
         #take selected piece
@@ -105,13 +106,11 @@ class MyMinMax(quarto.Player):
                 return op[0][0][1], op[0][0][0]
 
         #check if need a block and try to block 
-        '''
-        #worsen the result
         if len(positive_op) > 0:
-            move = self.block_next(piece)
+            move = utilities.block_next(self, piece_index)
             if move != None:
                 return move
-        '''
+        
         positive_op = []
         for e3 in self.opportunity[3]:  #take opportunity level 3 (good for me)
             if e3 not in positive_op:
@@ -141,93 +140,6 @@ class MyMinMax(quarto.Player):
                 if board[i][j] == -1:
                     return j, i      #return first free place found       
 
-    def block_next(self, sel_piece_index) -> tuple[int, int]:
-        '''
-        Check if next turn, I have to choose a piece that let my opponent win.
-        In this case return a position when place piece to block the winning.
-        ''' 
-        sel_piece = self.get_game().get_piece_charachteristics(sel_piece_index)
-
-        positive_char_opponent = {} #dict where key is l1 char and value the number of place 
-        for e1 in self.opportunity[1]:
-            if e1[1] not in positive_char_opponent:
-                positive_char_opponent[e1[1]] = 1
-            else:
-                 positive_char_opponent[e1[1]] += 1 
-
-        #print("in block", positive_char_opponent)
-
-        #take all piece indexes not already placed in the board
-        free_pieces = list(range(16))
-        free_pieces.remove(sel_piece_index) #remove selected piece
-        for r in self.get_game().get_board_status():
-            for p in r:
-                if p != -1:
-                    free_pieces.remove(p)    
-        
-        for p in free_pieces:
-            match = False 
-            for c in positive_char_opponent:
-                if c == 0:
-                    if self.get_game().get_piece_charachteristics(p).HIGH == True:
-                        match = True
-                elif c == 1:    
-                    if self.get_game().get_piece_charachteristics(p).COLOURED == True:
-                        match = True
-                elif c == 2:
-                    if self.get_game().get_piece_charachteristics(p).SOLID == True:
-                        match = True   
-                elif c == 3:
-                    if self.get_game().get_piece_charachteristics(p).SQUARE == True:
-                        match = True   
-                elif c == 4:
-                    if self.get_game().get_piece_charachteristics(p).HIGH == False:
-                        match = True  
-                elif c == 5:
-                    if self.get_game().get_piece_charachteristics(p).COLOURED == False:
-                        match = True   
-                elif c == 6:
-                    if self.get_game().get_piece_charachteristics(p).SOLID == False:
-                        match = True  
-                elif c == 7:
-                    if self.get_game().get_piece_charachteristics(p).SQUARE == False:
-                        match = True 
-                
-            if match == False: #find a piece that doesn't match
-                #print("find piece not match ", p)
-                return None   #no need block, find a piece without char in l1
-
-        #search char with one place
-        blockable_char = []
-        for c in positive_char_opponent:
-            if positive_char_opponent[c] == 1: #try to block char c if have one place
-                blockable_char.append(c)
-        #print("blockable char ", blockable_char)
-
-        for c in blockable_char:
-            place = None
-            not_in_l2 = True
-            for e1 in self.opportunity[1]:
-                if e1[1] == c:
-                    place = e1[0][0]
-            for e2 in self.opportunity[2]:
-                for place_2 in e2[0]:
-                    if place_2 == place:
-                        not_in_l2 = False
-            if not_in_l2:
-                #print("not il l2, ", place)   
-                return place[1], place[0]    
-
-       
-        if len(blockable_char) > 0: 
-            place = None
-            random_choose = random.choice(blockable_char)
-            for e1 in self.opportunity[1]:
-                if e1[1] == random_choose:
-                    place = e1[0][0]
-            #print("place in l2, ", place)        
-            return place[1], place[0]   
-        return None  #if there aren't any single place for one char -> unblockable -> return None           
     
     def find_piece(self, positive_char, negative_char) -> int:
         '''
@@ -293,204 +205,4 @@ class MyMinMax(quarto.Player):
         if len(piesces_match_char) > 0: #if there are at least one matched element return it
             return piesces_match_char[0]  
         return -1 #return -1 if thera isn't any piece that match the char and isn't already place                                                        
-                     
-
-    def save_opportunity(self, vet, i, verticale, char) -> None:
-        free_places = []
-        ind_diag = 0
-        ind_diag_rev = 3
-        for j in range(4):
-            if vet[j] == -1: #check free place
-                if verticale == 0: #vet is horiz
-                    if i == -1: #check if is main diag
-                        free_places.append((ind_diag,ind_diag))
-                    else:
-                        free_places.append((i, j))
-                else:
-                    if i == -1: #check if is antidiag
-                        free_places.append((ind_diag,ind_diag_rev))
-                    else:   
-                        free_places.append((j,i))
-            ind_diag+=1 
-            ind_diag_rev-=1          
-        self.opportunity[len(free_places)].append((free_places, char)) #append tupla in the correct dict list 
-        #print("save ", (free_places, char))                   
-
-    def check_opportunity(self) -> None:
-        self.opportunity = {1: [], 2: [], 3: [], 4: []} #reset opportunity vector
-        mat = self.get_game().get_board_status() #get board
-        #print("mat in check ")
-        #print(mat)
-
-        
-        for i in range(4):
-            horiz = mat[i]
-            vert = mat[:,i]
-            
-            
-            #HORIZ
-            #check if in horiz there are not element without char HIGH
-            if sum(1 for x in horiz if not self.get_game().get_piece_charachteristics(x).HIGH and x != -1) == 0:
-                
-                self.save_opportunity(horiz, i, 0, 0)
-
-            #check if in horiz there are not element without char COLOURED 
-            if sum(1 for x in horiz if not self.get_game().get_piece_charachteristics(x).COLOURED and x != -1) == 0:
-                
-                self.save_opportunity(horiz, i, 0, 1)
-
-            #check if in horiz there are not element without char SOLID 
-            if sum(1 for x in horiz if not self.get_game().get_piece_charachteristics(x).SOLID and x != -1) == 0:
-                
-                self.save_opportunity(horiz, i, 0, 2)
-
-            #check if in horiz there are not element without char SQUARE 
-            if sum(1 for x in horiz if not self.get_game().get_piece_charachteristics(x).SQUARE and x != -1) == 0:
-                
-                self.save_opportunity(horiz, i, 0, 3)
-
-            #check if in horiz there are not element with char HIGH -> are all low
-            if sum(1 for x in horiz if self.get_game().get_piece_charachteristics(x).HIGH and x != -1) == 0:
-                
-                self.save_opportunity(horiz, i, 0, 4)
-
-            #check if in horiz there are not element with char COLOURED -> are all WHITE 
-            if sum(1 for x in horiz if self.get_game().get_piece_charachteristics(x).COLOURED and x != -1) == 0:
-                
-                self.save_opportunity(horiz, i, 0, 5)
-
-            #check if in horiz there are not element with char SOLID -> are all holled 
-            if sum(1 for x in horiz if self.get_game().get_piece_charachteristics(x).SOLID and x != -1) == 0:
-                
-                self.save_opportunity(horiz, i, 0, 6)
-
-            #check if in horiz there are not element with char SQUARE -> are all CIRCUL 
-            if sum(1 for x in horiz if self.get_game().get_piece_charachteristics(x).SQUARE and x != -1) == 0:
-                
-                self.save_opportunity(horiz, i, 0, 7)
-            
-            
-            #VERT    
-            #check if in vert there are not element without char HIGH
-            if sum(1 for x in vert if not self.get_game().get_piece_charachteristics(x).HIGH and x != -1) == 0:
-                
-                self.save_opportunity(vert, i, 1, 0)
-
-            #check if in vert there are not element without char COLOURED 
-            if sum(1 for x in vert if not self.get_game().get_piece_charachteristics(x).COLOURED and x != -1) == 0:
-                
-                self.save_opportunity(vert, i, 1, 1)
-
-            #check if in vert there are not element without char SOLID 
-            if sum(1 for x in vert if not self.get_game().get_piece_charachteristics(x).SOLID and x != -1) == 0:
-                
-                self.save_opportunity(vert, i, 1, 2)
-
-            #check if in vert there are not element without char SQUARE 
-            if sum(1 for x in vert if not self.get_game().get_piece_charachteristics(x).SQUARE and x != -1) == 0:
-                
-                self.save_opportunity(vert, i, 1, 3)
-
-            #check if in vert there are not element with char HIGH -> are all low
-            if sum(1 for x in vert if self.get_game().get_piece_charachteristics(x).HIGH and x != -1) == 0:
-                
-                self.save_opportunity(vert, i, 1, 4)
-
-            #check if in vert there are not element with char COLOURED -> are all WHITE 
-            if sum(1 for x in vert if self.get_game().get_piece_charachteristics(x).COLOURED and x != -1) == 0:
-                
-                self.save_opportunity(vert, i, 1, 5)
-
-            #check if in vert there are not element with char SOLID -> are all holled 
-            if sum(1 for x in vert if self.get_game().get_piece_charachteristics(x).SOLID and x != -1) == 0:
-                
-                self.save_opportunity(vert, i, 1, 6)
-
-            #check if in vert there are not element with char SQUARE -> are all CIRCUL 
-            if sum(1 for x in vert if self.get_game().get_piece_charachteristics(x).SQUARE and x != -1) == 0:
-                
-                self.save_opportunity(vert, i, 1, 7)                       
-
-        
-        diag = mat.diagonal() #take main diagonal
-        #Diag
-        #check if in diag there are not element without char HIGH
-        if sum(1 for x in diag if not self.get_game().get_piece_charachteristics(x).HIGH and x != -1) == 0:
-            
-            self.save_opportunity(diag, -1, 0, 0)
-
-        #check if in diag there are not element without char COLOURED 
-        if sum(1 for x in diag if not self.get_game().get_piece_charachteristics(x).COLOURED and x != -1) == 0:
-        
-            self.save_opportunity(diag, -1, 0, 1)
-
-        #check if in diag there are not element without char SOLID 
-        if sum(1 for x in diag if not self.get_game().get_piece_charachteristics(x).SOLID and x != -1) == 0:
-            
-            self.save_opportunity(diag, -1, 0, 2)
-
-        #check if in diag there are not element without char SQUARE 
-        if sum(1 for x in diag if not self.get_game().get_piece_charachteristics(x).SQUARE and x != -1) == 0:
-           
-            self.save_opportunity(diag, -1, 0, 3)
-
-        #check if in diag there are not element with char HIGH -> are all low
-        if sum(1 for x in diag if self.get_game().get_piece_charachteristics(x).HIGH and x != -1) == 0:
-           
-            self.save_opportunity(diag, -1, 0, 4)
-
-        #check if in diag there are not element with char COLOURED -> are all WHITE 
-        if sum(1 for x in diag if self.get_game().get_piece_charachteristics(x).COLOURED and x != -1) == 0:
-            
-            self.save_opportunity(diag, -1, 0, 5)
-
-        #check if in diag there are not element with char SOLID -> are all holled 
-        if sum(1 for x in diag if self.get_game().get_piece_charachteristics(x).SOLID and x != -1) == 0:
-            
-            self.save_opportunity(diag, -1, 0, 6)
-
-        #check if in diag there are not element with char SQUARE -> are all CIRCUL 
-        if sum(1 for x in diag if self.get_game().get_piece_charachteristics(x).SQUARE and x != -1) == 0:
-            
-            self.save_opportunity(diag, -1, 0, 7)
-
-        diag = np.fliplr(mat).diagonal() #take anti diagonal
-        if sum(1 for x in diag if not self.get_game().get_piece_charachteristics(x).HIGH and x != -1) == 0:
-            
-            self.save_opportunity(diag, -1, 1, 0)
-
-        #check if in diag there are not element without char COLOURED 
-        if sum(1 for x in diag if not self.get_game().get_piece_charachteristics(x).COLOURED and x != -1) == 0:
-            
-            self.save_opportunity(diag, -1, 1, 1)
-
-        #check if in diag there are not element without char SOLID 
-        if sum(1 for x in diag if not self.get_game().get_piece_charachteristics(x).SOLID and x != -1) == 0:
-            
-            self.save_opportunity(diag, -1, 1, 2)
-
-        #check if in diag there are not element without char SQUARE 
-        if sum(1 for x in diag if not self.get_game().get_piece_charachteristics(x).SQUARE and x != -1) == 0:
-            
-            self.save_opportunity(diag, -1, 1, 3)
-
-        #check if in diag there are not element with char HIGH -> are all low
-        if sum(1 for x in diag if self.get_game().get_piece_charachteristics(x).HIGH and x != -1) == 0:
-            
-            self.save_opportunity(diag, -1, 1, 4)
-
-        #check if in diag there are not element with char COLOURED -> are all WHITE 
-        if sum(1 for x in diag if self.get_game().get_piece_charachteristics(x).COLOURED and x != -1) == 0:
-            
-            self.save_opportunity(diag, -1, 1, 5)
-
-        #check if in diag there are not element with char SOLID -> are all holled 
-        if sum(1 for x in diag if self.get_game().get_piece_charachteristics(x).SOLID and x != -1) == 0:
-            
-            self.save_opportunity(diag, -1, 1, 6)
-
-        #check if in diag there are not element with char SQUARE -> are all CIRCUL 
-        if sum(1 for x in diag if self.get_game().get_piece_charachteristics(x).SQUARE and x != -1) == 0:
-            
-            self.save_opportunity(diag, -1, 1, 7)
-        
+  
