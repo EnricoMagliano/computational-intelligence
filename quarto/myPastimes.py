@@ -18,7 +18,7 @@ class MyPastimes(quarto.Player):
     def choose_piece(self) -> int:
         #compute opportunity
         utilities.check_opportunity(self)
-        print(self.opportunity)
+        #print(self.opportunity)
         #take free pieces
         self.pieces = utilities.free_pieces(self)
 
@@ -56,10 +56,8 @@ class MyPastimes(quarto.Player):
             if best_piece_index == None or best_piece_index < value:
                 best_piece_index = p_index
         if best_piece_index != None:
-            print("choose from l2 char index: ", best_piece_index)  #return the best if exists           
-
-
-        
+            #print("choose from l2 char index: ", best_piece_index)  #return the best if exists           
+            return best_piece_index
         '''
         #simple version
         #try to return an element
@@ -68,12 +66,12 @@ class MyPastimes(quarto.Player):
             if n%2 == 0:
                 for p, p_char in returnable_piece.items():
                     if c in p_char:
-                        print("choose from l2 char index: ", p)
+                        #print("choose from l2 char index: ", p)
                         return p
             else: #if odd give at the opponeny a piece without char c
                 for p, p_char in returnable_piece.items():
                     if c not in p_char:
-                        print("choose from opposite l2 char index: ", p)
+                        #print("choose from opposite l2 char index: ", p)
                         return p
         '''
 
@@ -81,11 +79,11 @@ class MyPastimes(quarto.Player):
         #return from returnable list if it's not empty or choose from free piece
         if len(returnable_piece) > 0:
             choose = random.choice(list(returnable_piece.keys()))
-            print("choose from returnable :) index: ", choose)
+            #print("choose from returnable :) index: ", choose)
             return choose #return a good piece 
         else:
             choose = random.choice(list(self.pieces.keys()))
-            print("choose from free piece :( index: ", choose)
+            #print("choose from free piece :( index: ", choose)
             return choose  #return not a good piece
 
      
@@ -99,14 +97,14 @@ class MyPastimes(quarto.Player):
         #take selected piece
         piece_index = self.get_game().get_selected_piece()
         piece_char = utilities.get_pieces_char(self, piece_index)
-        print("piece char ", piece_char)
+        #print("piece char ", piece_char)
 
         #consider first l1 opportunities
         positive_op = []
         for e1 in self.opportunity[1]:  #take opportunity level 1 (best for me)
             if e1 not in positive_op:
                 positive_op.append(e1)
-        print(positive_op)
+        #print(positive_op)
         #loop over level 1 opportunity until found one with char of selected piece
         for op in positive_op:  
             if op[1] in piece_char: 
@@ -150,16 +148,6 @@ class MyPastimes(quarto.Player):
                 if board[i][j] == -1:
                     return j, i      #return first free place found        
         
-        return random.randint(0, 3), random.randint(0, 3)    
-
-    def char_l1(self):
-        '''
-        return a list of l1 char
-        '''
-        array = list()
-        for l1 in self.opportunity[1]:
-            if l1[1] not in array:
-                array.append(l1[1])
-        return array            
+        return random.randint(0, 3), random.randint(0, 3)              
 
     

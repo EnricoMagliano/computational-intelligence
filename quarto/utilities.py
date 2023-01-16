@@ -34,6 +34,17 @@ def get_pieces_char(agent, index):
     #print("piece char ", piece_char)
     return piece_char
 
+
+def char_l1(self):
+    '''
+    return a list of l1 char
+    '''
+    array = list()
+    for l1 in self.opportunity[1]:
+        if l1[1] not in array:
+            array.append(l1[1])
+    return array      
+
 def free_pieces(agent):
     '''
     Return a dict of free piece indexes as value and array of charateristic as value
@@ -61,7 +72,7 @@ def block_next(self, sel_piece_index) -> tuple[int, int]:
             else:
                  positive_char_opponent[e1[1]] += 1 
 
-        print("in block", positive_char_opponent)
+        #print("in block", positive_char_opponent)
 
         #take all piece indexes not already placed in the board
         free_pieces = list(range(16))
@@ -100,7 +111,7 @@ def block_next(self, sel_piece_index) -> tuple[int, int]:
                         match = True 
                 
             if match == False: #find a piece that doesn't match
-                print("find piece not match ", p)
+                #print("find piece not match ", p)
                 return None   #no need block, find a piece without char in l1
 
         #search char with one place
@@ -108,7 +119,7 @@ def block_next(self, sel_piece_index) -> tuple[int, int]:
         for c in positive_char_opponent:
             if positive_char_opponent[c] == 1: #try to block char c if have one place
                 blockable_char.append(c)
-        print("blockable char ", blockable_char)
+        #print("blockable char ", blockable_char)
 
 
 
@@ -132,7 +143,7 @@ def block_next(self, sel_piece_index) -> tuple[int, int]:
                     if place_2 == place:
                         not_in_l2 = False
             if not_in_l2:
-                print("not il l2, ", place)   
+                #print("not il l2, ", place)   
                 return place[1], place[0]    
         
         if len(blockable_char) > 0: 
@@ -141,7 +152,7 @@ def block_next(self, sel_piece_index) -> tuple[int, int]:
             for e1 in self.opportunity[1]:
                 if e1[1] == random_choose:
                     place = e1[0][0]
-            print("place in l2, ", place)        
+            #print("place in l2, ", place)        
             return place[1], place[0]   
         return None  #if there aren't any single place for one char -> unblockable -> return None        
         '''
@@ -159,7 +170,141 @@ def simulation(self, place, piece_index, free_piece):
                     piece_no_match = True 
             if piece_no_match == False:   
                 return False
-    return True        
+    return True 
+
+def check_l1(self, piece) -> bool:
+    '''
+    Return true if piece doesn't have charateristic in l1, otherwise return false
+    '''
+    #print("in check l1")
+    l1 = []
+    for e1 in self.opportunity[1]:
+        if e1[1] not in l1:
+            l1.append(e1[1])
+    if self.get_game().get_piece_charachteristics(piece).HIGH == True:
+        if 0 in l1:
+            return False
+    else: 
+        if 4 in l1:
+            return False
+    if self.get_game().get_piece_charachteristics(piece).COLOURED == True:
+        if 1 in l1:
+            return False
+    else: 
+        if 5 in l1:
+            return False
+    if self.get_game().get_piece_charachteristics(piece).SOLID == True:
+        if 2 in l1:
+            return False
+    else: 
+        if 6 in l1:
+            return False  
+    if self.get_game().get_piece_charachteristics(piece).SQUARE == True:
+        if 3 in l1:
+            return False
+    else: 
+        if 7 in l1:
+            return False              
+    return True            
+
+def select_pieces(self, char):
+    '''
+    return a list of all index of piece with char
+    '''
+    select_pieces = []
+    for i in range(16):
+        if char == 0:
+            if self.get_game().get_piece_charachteristics(i).HIGH == True:
+                select_pieces.append(i)
+        elif char == 1:
+            if self.get_game().get_piece_charachteristics(i).COLOURED == True:
+                select_pieces.append(i)
+        elif char == 2:
+            if self.get_game().get_piece_charachteristics(i).SOLID == True:
+                select_pieces.append(i)
+        elif char == 3:
+            if self.get_game().get_piece_charachteristics(i).SQUARE == True:
+                select_pieces.append(i)
+        elif char == 4:
+            if self.get_game().get_piece_charachteristics(i).HIGH == False:
+                select_pieces.append(i)
+        elif char == 5:
+            if self.get_game().get_piece_charachteristics(i).COLOURED == False:
+                select_pieces.append(i)
+        elif char == 6:
+            if self.get_game().get_piece_charachteristics(i).SOLID == False:
+                select_pieces.append(i)
+        elif char == 7:
+            if self.get_game().get_piece_charachteristics(i).SQUARE == False:
+                select_pieces.append(i)   
+
+    return select_pieces
+
+def find_piece(self, positive_char, negative_char) -> int:
+    '''
+    Return the index of a piece that satisfies positive char and doesn't have negative char
+    Rturn -1 if there aren't pieces like that 
+    '''
+    
+    # take all pieces not in board
+    pieces_not_in_board = [x for x in range(16) if x not in self.get_game().get_board_status()]
+    piesces_match_char = []
+    for i in pieces_not_in_board:  #take pieces that have at least one positive char 
+        for c in positive_char:
+            if c == 0:
+                if self.get_game().get_piece_charachteristics(i).HIGH == True and i not in piesces_match_char:
+                    piesces_match_char.append(i)
+            elif c == 1:    
+                if self.get_game().get_piece_charachteristics(i).COLOURED == True and i not in piesces_match_char:
+                    piesces_match_char.append(i)
+            elif c == 2:
+                if self.get_game().get_piece_charachteristics(i).SOLID == True and i not in piesces_match_char:
+                    piesces_match_char.append(i)   
+            elif c == 3:
+                if self.get_game().get_piece_charachteristics(i).SQUARE == True and i not in piesces_match_char:
+                    piesces_match_char.append(i)   
+            elif c == 4:
+                if self.get_game().get_piece_charachteristics(i).HIGH == False and i not in piesces_match_char:
+                    piesces_match_char.append(i)  
+            elif c == 5:
+                if self.get_game().get_piece_charachteristics(i).COLOURED == False and i not in piesces_match_char:
+                    piesces_match_char.append(i)   
+            elif c == 6:
+                if self.get_game().get_piece_charachteristics(i).SOLID == False and i not in piesces_match_char:
+                    piesces_match_char.append(i)   
+            elif c == 7:
+                if self.get_game().get_piece_charachteristics(i).SQUARE == False and i not in piesces_match_char:
+                    piesces_match_char.append(i)
+        for c in negative_char:
+            if c == 0:
+                if self.get_game().get_piece_charachteristics(i).HIGH == True and i in piesces_match_char:
+                    piesces_match_char.remove(i)
+            elif c == 1:    
+                if self.get_game().get_piece_charachteristics(i).COLOURED == True and i in piesces_match_char:
+                    piesces_match_char.remove(i)
+            elif c == 2:
+                if self.get_game().get_piece_charachteristics(i).SOLID == True and i in piesces_match_char:
+                    piesces_match_char.remove(i)   
+            elif c == 3:
+                if self.get_game().get_piece_charachteristics(i).SQUARE == True and i in piesces_match_char:
+                    piesces_match_char.remove(i)   
+            elif c == 4:
+                if self.get_game().get_piece_charachteristics(i).HIGH == False and i in piesces_match_char:
+                    piesces_match_char.remove(i)  
+            elif c == 5:
+                if self.get_game().get_piece_charachteristics(i).COLOURED == False and i in piesces_match_char:
+                    piesces_match_char.remove(i)   
+            elif c == 6:
+                if self.get_game().get_piece_charachteristics(i).SOLID == False and i in piesces_match_char:
+                    piesces_match_char.remove(i)   
+            elif c == 7:
+                if self.get_game().get_piece_charachteristics(i).SQUARE == False and i in piesces_match_char:
+                    piesces_match_char.remove(i)            
+            
+    if len(piesces_match_char) > 0: #if there are at least one matched element return it
+        return piesces_match_char[0]  
+    return -1 #return -1 if thera isn't any piece that match the char and isn't already place                                                        
+             
 
 def save_opportunity(agent, vet, i, verticale, char) -> None:
         free_places = []
