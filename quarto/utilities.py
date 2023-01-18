@@ -57,6 +57,18 @@ def free_pieces(agent):
 
     return pieces    
 
+def free_place(agent):
+    '''
+    Return a list tuple of free place in the board
+    '''    
+    board = agent.get_game().get_board_status()
+    free_place = []
+    for i in range(4):
+        for j in range(4):
+            if board[i][j] == -1:
+                free_place.append((i, j))
+    return free_place            
+
 def block_next(self, sel_piece_index) -> tuple[int, int]:
         '''
         Check if next turn, I have to choose a piece that let my opponent win.

@@ -8,6 +8,7 @@ import quarto
 import myMinMax
 import pastimesStrategy
 import myPastimes
+import agentRL
 
 
 class RandomPlayer(quarto.Player):
@@ -57,7 +58,8 @@ def play_n_game(game: quarto.Quarto, player1: quarto.Player, player2: quarto.Pla
 def main():
     game = quarto.Quarto()
     #play_one_game(game, RandomPlayer(game), RandomPlayer(game))
-    play_n_game(game, myMinMax.MyMinMax(game), myPastimes.MyPastimes(game), 100)
+
+    play_n_game(game, agentRL.ReinforcementLearning(game),RandomPlayer(game), 100)
 
 
 if __name__ == '__main__':
