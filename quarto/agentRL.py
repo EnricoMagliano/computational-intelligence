@@ -21,31 +21,34 @@ class ReinforcementLearning(quarto.Player):
         self.learning = value
 
     def save_knowledge(self, win):
-        print(self.current)
-        print(self.knowledge)
+        #print(self.current)
+        #print(self.knowledge)
         for board, value in self.current.items():
-            print("board ", board)
-            print("value ", value)
+            #print("board ", board)
+            #print("value ", value)
             if board in self.knowledge:
-                not_in = True 
-                for element in self.knowledge[board]["choose_piece"]:
-                    if element[0] == value["choose_piece"]:
-                        print("err ", element)
-                        not_in = False
-                        element[1]+= 1 if win else -1
-                if not_in:
-                    self.knowledge[board]["choose_piece"].append([value["choose_piece"], 1 if win else -1])
-                not_in = True 
-                for element in self.knowledge[board]["place_piece"]:
-                    if element[0] == value["place_piece"]:
-                        not_in = False
-                        element[1]+= 1 if win else -1
-                if not_in:
-                    self.knowledge[board]["place_piece"].append([value["place_piece"], 1 if win else -1])        
+                if "choose_piece" in value:
+                    not_in = True 
+                    for element in self.knowledge[board]["choose_piece"]:
+                        if element[0] == value["choose_piece"]:
+                            #print("err ", element)
+                            not_in = False
+                            element[1]+= 1 if win else -1
+                    if not_in:
+                        self.knowledge[board]["choose_piece"].append([value["choose_piece"], 1 if win else -1])
+                else:
+                    not_in = True 
+                    for element in self.knowledge[board]["place_piece"]:
+                        if element[0] == value["place_piece"]:
+                            not_in = False
+                            element[1]+= 1 if win else -1
+                    if not_in:
+                        self.knowledge[board]["place_piece"].append([value["place_piece"], 1 if win else -1])        
             else:
                 self.knowledge[board] = {"choose_piece": list(), "place_piece": list()}
-                if win:
+                if "choose_piece" in value:
                     self.knowledge[board]["choose_piece"].append([value["choose_piece"], 1 if win else -1])
+                else:
                     self.knowledge[board]["place_piece"].append([value["place_piece"], 1 if win else -1])
         
         self.current = dict()
@@ -55,11 +58,12 @@ class ReinforcementLearning(quarto.Player):
             board = self.get_game().get_board_status()
             free_pieces = list(utilities.free_pieces(self).keys())           
             choose = random.choice(free_pieces)
-
-            if np.array2string(board) in self.current:
-                self.current[np.array2string(board)]["choose_piece"] = choose
-            else:
-                self.current[np.array2string(board)] = {"choose_piece": choose, "place_piece": None}
+            print("in choose piece: ", choose)
+            print(self.current)
+            print("board ", np.array2string(board))
+            
+            self.current[np.array2string(board)] = {"choose_piece": choose}
+            print(self.current)
             return choose
         else:
             return random.randint(0, 15)    
@@ -69,10 +73,12 @@ class ReinforcementLearning(quarto.Player):
             board = self.get_game().get_board_status()
             free_place = utilities.free_place(self)
             choose = random.choice(free_place)
-            if np.array2string(board) in self.current:
-                self.current[np.array2string(board)]["place_piece"] = choose
-            else:
-                self.current[np.array2string(board)] = {"choose_piece": None, "place_piece": choose}
+            print("in place piece: ", choose)
+            print(self.current)
+            print("board ", np.array2string(board))
+            
+            self.current[np.array2string(board)] = {"place_piece": choose}
+            print(self.current)
             return choose[1], choose[0]
         else:
             return random.randint(0, 3), random.randint(0, 3)
