@@ -59,11 +59,12 @@ class ReinforcementLearning(quarto.Player):
             return choose
         else:
             best = None
-            for piece_score in self.knowledge[np.array2string(board)]["choose_piece"]:
-                if best == None or best[1] < piece_score[1]:
-                    best = piece_score
-            if best != None:
-                return best[0]
+            if np.array2string(board) in self.knowledge:
+                for piece_score in self.knowledge[np.array2string(board)]["choose_piece"]:
+                    if best == None or best[1] < piece_score[1]:
+                        best = piece_score
+                if best != None:
+                    return best[0]
             else:
                 return choose
 
@@ -77,13 +78,15 @@ class ReinforcementLearning(quarto.Player):
             return choose[1], choose[0]
         else:
             best = None
-            for place_score in self.knowledge[np.array2string(board)]["place_piece"]:
-                if best == None or best[1] < place_score[1]:
-                    best = place_score
-            if best != None:
-                return best[0][1], best[0][1]
+            if np.array2string(board) in self.knowledge:
+                for place_score in self.knowledge[np.array2string(board)]["place_piece"]:
+                    if best == None or best[1] < place_score[1]:
+                        best = place_score
+                if best != None:
+                    return best[0][1], best[0][1]
             else:
                 return choose[1], choose[0]
+                     
 
 
 
@@ -147,7 +150,7 @@ def training():
     #play_one_game(game, RandomPlayer(game), RandomPlayer(game))
     agentReinLear = ReinforcementLearning(game)
     agentReinLear.set_learning(True)
-    play_n_game_train(game, agentReinLear, main.RandomPlayer(game), 1000) 
+    play_n_game_train(game, agentReinLear, main.RandomPlayer(game), 100) 
     agentReinLear.set_learning(False) 
     play_n_game(game, agentReinLear, main.RandomPlayer(game), 100) 
 
