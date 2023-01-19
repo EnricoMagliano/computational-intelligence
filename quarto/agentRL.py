@@ -55,9 +55,11 @@ class ReinforcementLearning(quarto.Player):
         free_pieces = list(utilities.free_pieces(self).keys())           
         choose = random.choice(free_pieces)
         if self.learning:
+            print("sono in learning choose piece")
             self.current[np.array2string(board)] = {"choose_piece": choose}
             return choose
         else:
+            print("sono in evaluate choose piece")
             best = None
             if np.array2string(board) in self.knowledge:
                 for piece_score in self.knowledge[np.array2string(board)]["choose_piece"]:
@@ -65,27 +67,30 @@ class ReinforcementLearning(quarto.Player):
                         best = piece_score
                 if best != None:
                     return best[0]
-            else:
-                return choose
+            return choose
 
     def place_piece(self) -> tuple[int, int]:
+        
         board = self.get_game().get_board_status()
         free_place = utilities.free_place(self)
         choose = random.choice(free_place)
         if self.learning:
-            
+            print("sono in learning place piece")
             self.current[np.array2string(board)] = {"place_piece": choose}
+            print("1 ", choose)
             return choose[1], choose[0]
         else:
+            print("sono in evaluate place piece")
             best = None
             if np.array2string(board) in self.knowledge:
                 for place_score in self.knowledge[np.array2string(board)]["place_piece"]:
                     if best == None or best[1] < place_score[1]:
                         best = place_score
                 if best != None:
+                    print("2 ", best)
                     return best[0][1], best[0][1]
-            else:
-                return choose[1], choose[0]
+            print("3 ", choose)
+            return choose[1], choose[0]
                      
 
 
@@ -147,10 +152,10 @@ def play_n_game(game: quarto.Quarto, RF: ReinforcementLearning, player2: quarto.
 
 def training():
     game = quarto.Quarto()
-    #play_one_game(game, RandomPlayer(game), RandomPlayer(game))
     agentReinLear = ReinforcementLearning(game)
     agentReinLear.set_learning(True)
-    play_n_game_train(game, agentReinLear, main.RandomPlayer(game), 100) 
+    play_n_game_train(game, agentReinLear, main.RandomPlayer(game), 100)
+    print("start evaluation") 
     agentReinLear.set_learning(False) 
     play_n_game(game, agentReinLear, main.RandomPlayer(game), 100) 
 
