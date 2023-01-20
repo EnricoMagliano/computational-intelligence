@@ -30,23 +30,23 @@ class ReinforcementLearning(quarto.Player):
                     for element in self.knowledge[board]["choose_piece"]:
                         if element[0] == value["choose_piece"]:
                             not_in = False
-                            element[1]+= 1 if win else -1
+                            element[1]+= 1 if win else 0
                     if not_in:
-                        self.knowledge[board]["choose_piece"].append([value["choose_piece"], 1 if win else -1])
+                        self.knowledge[board]["choose_piece"].append([value["choose_piece"], 1 if win else 0])
                 else:
                     not_in = True 
                     for element in self.knowledge[board]["place_piece"]:
                         if element[0] == value["place_piece"]:
                             not_in = False
-                            element[1]+= 1 if win else -1
+                            element[1]+= 1 if win else 0
                     if not_in:
-                        self.knowledge[board]["place_piece"].append([value["place_piece"], 1 if win else -1])        
+                        self.knowledge[board]["place_piece"].append([value["place_piece"], 1 if win else 0])        
             else:
                 self.knowledge[board] = {"choose_piece": list(), "place_piece": list()}
                 if "choose_piece" in value:
-                    self.knowledge[board]["choose_piece"].append([value["choose_piece"], 1 if win else -1])
+                    self.knowledge[board]["choose_piece"].append([value["choose_piece"], 1 if win else 0])
                 else:
-                    self.knowledge[board]["place_piece"].append([value["place_piece"], 1 if win else -1])
+                    self.knowledge[board]["place_piece"].append([value["place_piece"], 1 if win else 0])
         
         self.current = dict()
 
@@ -88,7 +88,7 @@ class ReinforcementLearning(quarto.Player):
                         best = place_score
                 if best != None:
                     print("2 ", best)
-                    return best[0][1], best[0][1]
+                    return best[0][1], best[0][0]
             print("3 ", choose)
             return choose[1], choose[0]
                      
@@ -154,10 +154,10 @@ def training():
     game = quarto.Quarto()
     agentReinLear = ReinforcementLearning(game)
     agentReinLear.set_learning(True)
-    play_n_game_train(game, agentReinLear, main.RandomPlayer(game), 100)
+    play_n_game_train(game, agentReinLear, main.RandomPlayer(game), 10000)
     print("start evaluation") 
     agentReinLear.set_learning(False) 
-    play_n_game(game, agentReinLear, main.RandomPlayer(game), 100) 
+    play_n_game(game, agentReinLear, main.RandomPlayer(game), 1000) 
 
 
 if __name__ == '__main__':
