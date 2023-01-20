@@ -30,23 +30,23 @@ class ReinforcementLearning(quarto.Player):
                     for element in self.knowledge[board]["choose_piece"]:
                         if element[0] == value["choose_piece"]:
                             not_in = False
-                            element[1]+= 1 if win else 0
+                            element[1]+= 1 if win else -1
                     if not_in:
-                        self.knowledge[board]["choose_piece"].append([value["choose_piece"], 1 if win else 0])
+                        self.knowledge[board]["choose_piece"].append([value["choose_piece"], 1 if win else -1])
                 else:
                     not_in = True 
                     for element in self.knowledge[board]["place_piece"]:
                         if element[0] == value["place_piece"]:
                             not_in = False
-                            element[1]+= 1 if win else 0
+                            element[1]+= 1 if win else -1
                     if not_in:
-                        self.knowledge[board]["place_piece"].append([value["place_piece"], 1 if win else 0])        
+                        self.knowledge[board]["place_piece"].append([value["place_piece"], 1 if win else -1])        
             else:
                 self.knowledge[board] = {"choose_piece": list(), "place_piece": list()}
                 if "choose_piece" in value:
-                    self.knowledge[board]["choose_piece"].append([value["choose_piece"], 1 if win else 0])
+                    self.knowledge[board]["choose_piece"].append([value["choose_piece"], 1 if win else -1])
                 else:
-                    self.knowledge[board]["place_piece"].append([value["place_piece"], 1 if win else 0])
+                    self.knowledge[board]["place_piece"].append([value["place_piece"], 1 if win else -1])
         
         self.current = dict()
 
