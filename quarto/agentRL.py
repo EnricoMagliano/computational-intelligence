@@ -24,27 +24,32 @@ class ReinforcementLearning(quarto.Player):
     def save_knowledge(self, win):
         '''save the move made in this game scoring accordinng with the outcome (win)'''
         
-        for board, value in self.current.items(): #loop over all the board status
-            if board in self.knowledge: #check if already exist in the dict
-                if "choose_piece" in value:
+        #value is a dict that contains choosen piece or place piece
+        for board, value in self.current.items(): #loop over all the board status in current dict
+            
+            if board in self.knowledge: #check if board already exist in the dict
+                
+                if "choose_piece" in value: #check if value is choose_piece type
                     not_in = True 
                     for element in self.knowledge[board]["choose_piece"]:
-                        if element[0] == value["choose_piece"]:
+                        if element[0] == value["choose_piece"]: #if piece already exists for board status in knowledge dict
                             not_in = False
-                            element[1]+= 1 if win else -1
-                    if not_in:
+                            element[1]+= 1 if win else -1 #update it 
+                    if not_in: #otherwise add it and initialize
                         self.knowledge[board]["choose_piece"].append([value["choose_piece"], 1 if win else -1])
-                else:
+                
+                else: #check if value is place_piece type
                     not_in = True 
-                    for element in self.knowledge[board]["place_piece"]:
-                        if element[0] == value["place_piece"]:
+                    for element in self.knowledge[board]["place_piece"]: 
+                        if element[0] == value["place_piece"]: #if place already exists for board status in knowledge dict
                             not_in = False
-                            element[1]+= 1 if win else -1
-                    if not_in:
+                            element[1]+= 1 if win else -1 #update it
+                    if not_in: #otherwise add it and initialize
                         self.knowledge[board]["place_piece"].append([value["place_piece"], 1 if win else -1])        
-            else:
+            
+            else: #if board status isn't already in the knowledge dict add it creating the 2 list, one for piece scoring the other for place scoring
                 self.knowledge[board] = {"choose_piece": list(), "place_piece": list()}
-                if "choose_piece" in value:
+                if "choose_piece" in value: #and add piece or place in the right list, with score according to the outcomes
                     self.knowledge[board]["choose_piece"].append([value["choose_piece"], 1 if win else -1])
                 else:
                     self.knowledge[board]["place_piece"].append([value["place_piece"], 1 if win else -1])
@@ -159,7 +164,7 @@ def training():
     agentReinLear.set_learning(True) 
     play_n_game_train(game, agentReinLear, main.RandomPlayer(game), 10000)
     agentReinLear.set_learning(False) 
-    play_n_game(game, agentReinLear, main.RandomPlayer(game), 1000) 
+    play_n_game(game, agentReinLear, main.RandomPlayer(game), 10000) 
 
 
 if __name__ == '__main__':
