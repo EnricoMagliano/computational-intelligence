@@ -14,8 +14,8 @@ class ReinforcementLearning(quarto.Player):
     def __init__(self, quarto: quarto.Quarto) -> None:
         super().__init__(quarto)
         self.learning = False
-        self.knowledge = dict() 
-        self.current = dict()
+        self.knowledge = dict() #dict with board status as key and two list as value one for the score of all place and one for the piece
+        self.current = dict() #dict for saving place and piece of the current game 
 
     def set_learning(self, value: bool):
         '''set RF agent in learning mode if value equal true, otherwise set it on evaluation mode.'''
@@ -23,8 +23,9 @@ class ReinforcementLearning(quarto.Player):
 
     def save_knowledge(self, win):
         '''save the move made in this game scoring accordinng with the outcome (win)'''
-        for board, value in self.current.items():
-            if board in self.knowledge:
+        
+        for board, value in self.current.items(): #loop over all the board status
+            if board in self.knowledge: #check if already exist in the dict
                 if "choose_piece" in value:
                     not_in = True 
                     for element in self.knowledge[board]["choose_piece"]:
@@ -48,49 +49,48 @@ class ReinforcementLearning(quarto.Player):
                 else:
                     self.knowledge[board]["place_piece"].append([value["place_piece"], 1 if win else -1])
         
-        self.current = dict()
+        self.current = dict() #reset the current dict
 
     def choose_piece(self) -> int:
         board = self.get_game().get_board_status()
         free_pieces = list(utilities.free_pieces(self).keys())           
         choose = random.choice(free_pieces)
-        if self.learning:
-            print("sono in learning choose piece")
-            self.current[np.array2string(board)] = {"choose_piece": choose}
+
+        if self.learning: #if agent is set in learning return a random piece from the free ones
+            self.current[np.array2string(board)] = {"choose_piece": choose} #and save the choose in the current dict
             return choose
-        else:
-            print("sono in evaluate choose piece")
+
+        else: #if agent is in eval mode select the piece with the highest score (>0) if it exists
             best = None
             if np.array2string(board) in self.knowledge:
+                #piece_score is a tuple (piece_index, score)
                 for piece_score in self.knowledge[np.array2string(board)]["choose_piece"]:
                     if best == None or best[1] < piece_score[1]:
                         best = piece_score
-                if best != None:
+                if best != None and best[1] > 0: #check if exists a piece with score greater than 0
                     return best[0]
-            return choose
+            return choose #if not exist return a random piece
 
     def place_piece(self) -> tuple[int, int]:
         
         board = self.get_game().get_board_status()
         free_place = utilities.free_place(self)
         choose = random.choice(free_place)
-        if self.learning:
-            print("sono in learning place piece")
-            self.current[np.array2string(board)] = {"place_piece": choose}
-            print("1 ", choose)
+
+        if self.learning:   #if agent is set in learning return a random place from the free ones
+            self.current[np.array2string(board)] = {"place_piece": choose} #and save the choose in the current dict
             return choose[1], choose[0]
-        else:
-            print("sono in evaluate place piece")
+        
+        else:   #if agent is in eval mode select the place with the highest score (>0)  if it exists
             best = None
             if np.array2string(board) in self.knowledge:
+                #place_score is a tuple (place_tuple, score)
                 for place_score in self.knowledge[np.array2string(board)]["place_piece"]:
                     if best == None or best[1] < place_score[1]:
                         best = place_score
-                if best != None:
-                    print("2 ", best)
+                if best != None and best[1] > 0: #check if exists a place with score greater than 0
                     return best[0][1], best[0][0]
-            print("3 ", choose)
-            return choose[1], choose[0]
+            return choose[1], choose[0] #if not exist return a random place from the free ones
                      
 
 
@@ -151,11 +151,13 @@ def play_n_game(game: quarto.Quarto, RF: ReinforcementLearning, player2: quarto.
     logging.warning(f"main: Winner ratio of RF evaluation training: {win_count/n}")
 
 def training():
+    '''
+    training the RF agent and evaluete it
+    '''
     game = quarto.Quarto()
     agentReinLear = ReinforcementLearning(game)
-    agentReinLear.set_learning(True)
+    agentReinLear.set_learning(True) 
     play_n_game_train(game, agentReinLear, main.RandomPlayer(game), 10000)
-    print("start evaluation") 
     agentReinLear.set_learning(False) 
     play_n_game(game, agentReinLear, main.RandomPlayer(game), 1000) 
 
