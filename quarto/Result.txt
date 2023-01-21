@@ -14,8 +14,9 @@ myPastimes (with block strategy)
 10000 match -> 0.5 against myMinMax
 
 Reinforcement Learning (classic on board status)
-1000 match -> 0.55 trained with random against random
-1000 match -> 0.47 trained with myMinMax against random 
-1000 match -> 0.03 trained with random against myMinMax 
-1000 match -> 0.04 trained with myMinMax against myMinMax 
+1000 match of training -> 0.55 trained with random against random
+10000 match of training -> 0.60 trained with random agaist random
+1000 match of training -> 0.47 trained with myMinMax against random 
+1000 match of training -> 0.03 trained with random against myMinMax 
+1000 match of training -> 0.04 trained with myMinMax against myMinMax 
 

@@ -9,7 +9,7 @@ import utilities
 import main
 import myMinMax
 
-NUM_TRAINING_MATCH = 1000
+NUM_TRAINING_MATCH = 10000
 NUM_EVAL_MATCH = 100
 
 class ReinforcementLearning(quarto.Player):
@@ -173,9 +173,9 @@ def training():
     game = quarto.Quarto()
     agentReinLear = ReinforcementLearning(game)
     agentReinLear.set_learning(True) 
-    play_n_game_train(game, agentReinLear, myMinMax.MyMinMax(game), NUM_TRAINING_MATCH)
+    play_n_game_train(game, agentReinLear, main.RandomPlayer(game), NUM_TRAINING_MATCH)
     agentReinLear.set_learning(False) 
-    play_n_game(game, agentReinLear, myMinMax.MyMinMax(game), NUM_EVAL_MATCH) 
+    play_n_game(game, agentReinLear, main.RandomPlayer(game), NUM_EVAL_MATCH) 
 
 
 if __name__ == '__main__':
