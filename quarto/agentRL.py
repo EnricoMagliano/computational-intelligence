@@ -7,6 +7,10 @@ import numpy as np
 import operator as op
 import utilities
 import main
+import myMinMax
+
+NUM_TRAINING_MATCH = 1000
+NUM_EVAL_MATCH = 100
 
 class ReinforcementLearning(quarto.Player):
     '''Reinforcement Learning Agent'''
@@ -16,6 +20,9 @@ class ReinforcementLearning(quarto.Player):
         self.learning = False
         self.knowledge = dict() #dict with board status as key and two list as value one for the score of all place and one for the piece
         self.current = dict() #dict for saving place and piece of the current game 
+        self.random_factor = 1 #close to 1 -> more exploration, close to 0 more exploitation
+        self.num_match = 0
+        self.tot_num_matches = NUM_TRAINING_MATCH
 
     def set_learning(self, value: bool):
         '''set RF agent in learning mode if value equal true, otherwise set it on evaluation mode.'''
@@ -54,6 +61,8 @@ class ReinforcementLearning(quarto.Player):
                 else:
                     self.knowledge[board]["place_piece"].append([value["place_piece"], 1 if win else -1])
         
+        self.num_match +=1 #update number of played matches
+        self.random_factor = 1- 2*(self.num_match/self.tot_num_matches) #update random factor for encrease the exploitation with match prograssion
         self.current = dict() #reset the current dict
 
     def choose_piece(self) -> int:
@@ -61,7 +70,8 @@ class ReinforcementLearning(quarto.Player):
         free_pieces = list(utilities.free_pieces(self).keys())           
         choose = random.choice(free_pieces)
 
-        if self.learning: #if agent is set in learning return a random piece from the free ones
+        #if random_factor > random(0,1) -> exploration otherwise exploitation
+        if self.learning and random.random() < self.random_factor: #if agent is set in learning return a random piece from the free ones
             self.current[np.array2string(board)] = {"choose_piece": choose} #and save the choose in the current dict
             return choose
 
@@ -82,11 +92,12 @@ class ReinforcementLearning(quarto.Player):
         free_place = utilities.free_place(self)
         choose = random.choice(free_place)
 
-        if self.learning:   #if agent is set in learning return a random place from the free ones
+        #if random_factor > random(0,1) -> exploration otherwise exploitation
+        if self.learning and random.random() < self.random_factor:   #if agent is set in learning and exploration return a random place from the free ones 
             self.current[np.array2string(board)] = {"place_piece": choose} #and save the choose in the current dict
             return choose[1], choose[0]
         
-        else:   #if agent is in eval mode select the place with the highest score (>0)  if it exists
+        else:   #if agent is in eval (or exploitation) mode select the place with the highest score (>0)  if it exists
             best = None
             if np.array2string(board) in self.knowledge:
                 #place_score is a tuple (place_tuple, score)
@@ -162,9 +173,9 @@ def training():
     game = quarto.Quarto()
     agentReinLear = ReinforcementLearning(game)
     agentReinLear.set_learning(True) 
-    play_n_game_train(game, agentReinLear, main.RandomPlayer(game), 10000)
+    play_n_game_train(game, agentReinLear, myMinMax.MyMinMax(game), NUM_TRAINING_MATCH)
     agentReinLear.set_learning(False) 
-    play_n_game(game, agentReinLear, main.RandomPlayer(game), 10000) 
+    play_n_game(game, agentReinLear, myMinMax.MyMinMax(game), NUM_EVAL_MATCH) 
 
 
 if __name__ == '__main__':

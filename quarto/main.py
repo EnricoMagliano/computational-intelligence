@@ -57,8 +57,6 @@ def play_n_game(game: quarto.Quarto, player1: quarto.Player, player2: quarto.Pla
 
 def main():
     game = quarto.Quarto()
-    #play_one_game(game, RandomPlayer(game), RandomPlayer(game))
-
     play_n_game(game, agentRL.ReinforcementLearning(game),RandomPlayer(game), 100)
 
 
