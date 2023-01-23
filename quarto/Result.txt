@@ -1,6 +1,6 @@
 myMinMax
 10000 match -> 0.9811 against random
-10000 match -> 0.9833 against random with block strategy
+10000 match -> 0.9864 against random with block strategy
 
 pastimes
 1000 match -> 0.433/0.443 against myMinMax
