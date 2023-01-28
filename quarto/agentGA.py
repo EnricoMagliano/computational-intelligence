@@ -7,6 +7,7 @@ import numpy as np
 import operator as op
 import utilities
 import main
+import math
 
 NUM_TRAINING_MATCH = 100
 NUM_EVAL_MATCH = 10
@@ -29,7 +30,7 @@ class GeneticAlgorithm(quarto.Player):
     def choose_piece(self) -> int:
         utilities.check_opportunity(self)
 
-        level = round(self.genome[0]*4)
+        level = math.ceil(self.genome[0]*4)
         chars = {}
         for _, char in self.opportunity[level]:
             if char not in chars:
@@ -58,6 +59,28 @@ class GeneticAlgorithm(quarto.Player):
         return random.randint(0, 15)
 
     def place_piece(self) -> tuple[int, int]:
+        utilities.check_opportunity(self)
+        piece_index = self.get_game().get_selected_piece()
+        piece_char = utilities.get_pieces_char(self, piece_index)
+        level = math.ceil(self.genome[2]*4)
+
+        position_pos = []
+        position_neg = utilities.free_place(self)
+        for pos, char in self.opportunity[level]:
+            for p in pos:
+                if char in piece_char:
+                    position_pos.append(p)
+                    if p in position_neg:
+                        position_neg.remove(p)
+        if self.genome[3] < 0.5:
+            if len(position_pos) > 0:
+                choice = random.choice(position_pos)
+                return choice[1], choice[0]
+        else:
+            if len(position_neg) > 0:
+                choice = random.choice(position_neg)
+                return choice[1], choice[0]        
+
         return random.randint(0, 3), random.randint(0, 3)
 
 
@@ -144,8 +167,8 @@ def training():
     game = quarto.Quarto()
     agentGen = GeneticAlgorithm(game)
     agentGen.set_genome(best_genome) 
-    play_n_game(game, agentGen, main.RandomPlayer(game), NUM_EVAL_MATCH) 
-
+    result = play_n_game(game, agentGen, main.RandomPlayer(game), NUM_EVAL_MATCH) 
+    print(f"main: Winner ratio of GA: {result}, with genome: {best_genome}")
 
 if __name__ == '__main__':
     training()
