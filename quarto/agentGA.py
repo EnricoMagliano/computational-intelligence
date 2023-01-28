@@ -20,12 +20,41 @@ class GeneticAlgorithm(quarto.Player):
     def __init__(self, quarto: quarto.Quarto) -> None:
         super().__init__(quarto)
         self.best_genome = None
+        self.opportunity = {}   #dict key=opportunity level, value= list of tuple of a list of position tuple and int that is charachteristics
 
     def set_genome(self, genome):
         '''set the genome for the current GA agent'''
         self.genome = genome 
 
     def choose_piece(self) -> int:
+        utilities.check_opportunity(self)
+
+        level = round(self.genome[0]*4)
+        chars = {}
+        for _, char in self.opportunity[level]:
+            if char not in chars:
+                chars[char] = 1
+            else:
+                chars[char] += 1    
+
+        free_piece = utilities.free_pieces(self)
+        best_fit = None
+        worse_fit = None
+        for p_index, p_char in free_piece.items():
+            score = 0
+            for char in p_char:
+                score += chars[char] if char in chars else 0
+            if worse_fit == None or worse_fit[1] > score:
+                worse_fit = (p_index, score)
+            if best_fit == None or best_fit[1] < score:
+                best_fit = (p_index, score)        
+        if self.genome[1] < 0.5:
+            if best_fit != None:
+                return best_fit[0]
+        else:
+            if worse_fit != None:
+                return worse_fit[0]        
+
         return random.randint(0, 15)
 
     def place_piece(self) -> tuple[int, int]:
@@ -48,7 +77,7 @@ def fitness(genome): # calcolate the fisness
 def generatePopulation(): #return population, one individual is a tuple of a mask array of the list taken and his fitness
     population = list()
     for genome in range(POPULATION_SIZE):
-        genome = (random.random(), random.random(), random.random())
+        genome = (random.random(), random.random(), random.random(), random.random())
         population.append((genome, fitness(genome)))
     return population    
 
@@ -65,6 +94,7 @@ def GA():
     
     population = generatePopulation()
     for generation in range(10):
+        print("init gen: ", generation)
         offsprings = list()
         for i in range(OFFSPRING_SIZE):
             o = ()
@@ -104,8 +134,8 @@ def play_n_game(game: quarto.Quarto, GA: GeneticAlgorithm, player2: quarto.Playe
         if (winner == 0 and last_start == 0) or (winner == 1 and last_start == 1): #player1 win
             win_count+=1
                     
-    logging.warning(f"main: Winner ratio of GA evaluation training: {win_count/n}")
-
+    #logging.warning(f"main: Winner ratio of GA evaluation training: {win_count/n}")
+    return win_count/n
 def training():
     '''
     training the GA agent and evaluete it
