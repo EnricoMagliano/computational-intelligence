@@ -8,6 +8,7 @@ import operator as op
 import utilities
 import main
 import math
+import myMinMax
 
 class GeneticAlgorithm(quarto.Player):
     '''Genetic Algorithm agent'''
@@ -93,18 +94,18 @@ GENOME MEANING:
     genome[3] = for place piece, if higher than 0.5 try to destroy the opportunity otherwise try to use it
 '''
 
-NUM_TRAINING_MATCH = 100    #to compute fitness
+NUM_TRAINING_MATCH = 10    #to compute fitness
 NUM_EVAL_MATCH = 1000       #to evaluate the best genome    
 NUM_GENERATION = 10
-POPULATION_SIZE = 1000
-OFFSPRING_SIZE = 50
+POPULATION_SIZE = 100
+OFFSPRING_SIZE = 10
 
 def fitness(genome):
     '''Compute the fitness of the genome as the winning ratio agaisnt random player'''
     game = quarto.Quarto()
     agent = GeneticAlgorithm(game)
     agent.set_genome(genome)
-    opponent = main.RandomPlayer(game)
+    opponent = myMinMax.MyMinMax(game)
     return play_n_game(game, agent, opponent, NUM_TRAINING_MATCH)
 
 def generatePopulation():
