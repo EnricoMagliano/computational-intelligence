@@ -105,7 +105,7 @@ def fitness(genome):
     game = quarto.Quarto()
     agent = GeneticAlgorithm(game)
     agent.set_genome(genome)
-    opponent = myMinMax.MyMinMax(game)
+    opponent = main.RandomPlayer(game)
     return play_n_game(game, agent, opponent, NUM_TRAINING_MATCH)
 
 def generatePopulation():
@@ -168,6 +168,7 @@ def play_n_game(game: quarto.Quarto, GA: GeneticAlgorithm, player2: quarto.Playe
                     
     #logging.warning(f"main: Winner ratio of GA evaluation training: {win_count/n}")
     return win_count/n
+
 def training():
     '''
     training the GA agent and evaluete it
