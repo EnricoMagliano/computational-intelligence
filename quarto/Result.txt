@@ -3,14 +3,14 @@ myMinMax
 10000 match -> 0.9864 against random with block strategy
 
 pastimes
-1000 match -> 0.433/0.443 against myMinMax
-1000 match -> 0.415 against myMinMax (pastimes without block strategy)
+10000 match -> 0.433/0.443 against myMinMax
+10000 match -> 0.415 against myMinMax (pastimes without block strategy)
 10000 match ->  0.9833 against random
 10000 match (no block strategy )->  0.9795 against random
 
 myPastimes (with block strategy)
 10000 match -> 0.9835 agaist random
-10000 match -> 0.5065 agaist pastimes
+10000 match -> 0.543.65 agaist pastimes
 10000 match -> 0.5 against myMinMax
 
 Reinforcement Learning (classic on board status)
